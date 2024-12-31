@@ -13,7 +13,9 @@ DP랑 그리디, 그래프 풀어보기기
 |**GCC**|**14.2.0**|
 |**CMAKE**|**3.28.3**|
 
-src의 temp.cpp에 코드를 작성한 뒤 옵션을 선택하고 f5를 누르면면 io/(코드파일명).input.txt 에 있는 내용을 stdin으로 입력받은 뒤, output.txt에 stdout으로 출력한다.
+src의 cpp 파일에 코드를 작성한 뒤 옵션을 선택하고 f5를 누르면 io/(코드파일명).input.txt 에 있는 내용을 stdin으로 입력받은 뒤, (코드파일명).output.txt에 stdout으로 출력한다.
+
+txt 파일을 자동 생성하지는 않는다.
 
 ## CPP 입출력
 

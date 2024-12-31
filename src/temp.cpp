@@ -9,12 +9,17 @@ using ld = long double;
     std::cin.tie(NULL);                    \
     std::cout.tie(NULL);
 
+std::istream &operator>>(std::istream &is, std::pair<int, int> &p)
+{
+    is >> p.first >> p.second;
+    return is;
+}
+
 class Solver
 {
 private:
     int n;
-    std::vector<int> arr;
-    std::vector<int> dp;
+    std::vector<std::pair<int, int>> arr;
 
 public:
     Solver()
@@ -27,17 +32,26 @@ public:
     ~Solver() {}
     void solve()
     {
-        dp.assign(n, 0);
-        std::inclusive_scan(arr.begin(), arr.end(), dp.begin(), [](int acc, int x)
-                            { return std::max(acc + x, x); });
-        std::cout << *std::max_element(dp.begin(), dp.end());
+        std::vector<int> dp(n + 1, 0);
+        dp[0] = 0;
+        for (int i = 0; i < n + 1; i++)
+        {
+            for (int j = 0; j <= i; j++)
+            {
+                if (j + arr[j].first <= i)
+                {
+                    dp[i] = std::max(dp[i], dp[j] + arr[j].second);
+                }
+            }
+        }
+        std::cout << dp.back();
     }
 };
 
 int main()
 {
     fastio;
-    Solver s;
-    s.solve();
+    Solver solver;
+    solver.solve();
     return 0;
 }

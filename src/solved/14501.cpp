@@ -36,7 +36,7 @@ public:
         dp[0] = 0;
         for (int i = 0; i < n + 1; i++)
         {
-            for (int j = 0; j <= i; j++)
+            for (int j = 0; j < i; j++)
             {
                 if (j + arr[j].first <= i)
                 {

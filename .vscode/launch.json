@@ -1,0 +1,112 @@
+{
+    "configurations": [
+        {
+            "name": "Launch w/ i",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${command:cmake.getLaunchTargetPath}",
+            "args": [
+                "<",
+                "${workspaceFolder}/io/${command:cmake.getLaunchTargetFilename}.input.txt",
+                ">",
+                "${workspaceFolder}/io/${command:cmake.getLaunchTargetFilename}.output.txt"
+            ],
+            "stopAtEntry": false,
+            "cwd": "${workspaceFolder}",
+            "environment": [
+                {
+                    "name": "PATH",
+                    "value": "${env:PATH}:${command:cmake.getLaunchTargetDirectory}"
+                }
+            ],
+            "MIMode": "gdb",
+            "setupCommands": [
+                {
+                    "description": "Enable pretty-printing for gdb",
+                    "text": "-enable-pretty-printing",
+                    "ignoreFailures": true
+                }
+            ],
+            "preLaunchTask": "CMake: build current target"
+        },
+        {
+            "name": "Launch w/o i",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${command:cmake.getLaunchTargetPath}",
+            "args": [
+                ">",
+                "${workspaceFolder}/io/${command:cmake.getLaunchTargetFilename}.output.txt"
+            ],
+            "stopAtEntry": false,
+            "cwd": "${workspaceFolder}",
+            "environment": [
+                {
+                    "name": "PATH",
+                    "value": "${env:PATH}:${command:cmake.getLaunchTargetDirectory}"
+                }
+            ],
+            "MIMode": "gdb",
+            "setupCommands": [
+                {
+                    "description": "Enable pretty-printing for gdb",
+                    "text": "-enable-pretty-printing",
+                    "ignoreFailures": true
+                }
+            ],
+            "preLaunchTask": "CMake: build current target"
+        },
+        {
+            "name": "Launch w/o io",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${command:cmake.getLaunchTargetPath}",
+            "stopAtEntry": false,
+            "cwd": "${workspaceFolder}",
+            "environment": [
+                {
+                    "name": "PATH",
+                    "value": "${env:PATH}:${command:cmake.getLaunchTargetDirectory}"
+                }
+            ],
+            "MIMode": "gdb",
+            "setupCommands": [
+                {
+                    "description": "Enable pretty-printing for gdb",
+                    "text": "-enable-pretty-printing",
+                    "ignoreFailures": true
+                }
+            ],
+            "preLaunchTask": "CMake: build current target"
+        },
+        {
+            "name": "practice",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${command:cmake.getLaunchTargetPath}",
+            "args": [
+                "<",
+                "${workspaceFolder}/dataStructure/${command:cmake.getLaunchTargetFilename}.input.txt",
+                ">",
+                "${workspaceFolder}/dataStructure/${command:cmake.getLaunchTargetFilename}.output.txt"
+            ],
+            "stopAtEntry": false,
+            "cwd": "${workspaceFolder}",
+            "environment": [
+                {
+                    "name": "PATH",
+                    "value": "${env:PATH}:${command:cmake.getLaunchTargetDirectory}"
+                }
+            ],
+            "MIMode": "gdb",
+            "setupCommands": [
+                {
+                    "description": "Enable pretty-printing for gdb",
+                    "text": "-enable-pretty-printing",
+                    "ignoreFailures": true
+                }
+            ],
+            "preLaunchTask": "CMake: build current target"
+        },
+    ]
+}

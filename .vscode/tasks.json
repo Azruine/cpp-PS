@@ -1,0 +1,115 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "CMake: build current target",
+            "type": "cmake",
+            "command": "build",
+            "targets": [
+                "${command:cmake.getLaunchTargetFilename}"
+            ],
+            "options": {
+                "statusbar": {
+                    "hide": true
+                }
+            }
+        },
+        {
+            "label": "gprof: run executable",
+            "type": "shell",
+            "command": "${command:cmake.getLaunchTargetPath}",
+            "args": [
+                "<",
+                "${workspaceFolder}/io/${command:cmake.getLaunchTargetFilename}.input.txt",
+                ">",
+                "/dev/null"
+            ],
+            "options": {
+                "statusbar": {
+                    "hide": true
+                }
+            }
+        },
+        {
+            "label": "gprof: profile",
+            "type": "shell",
+            "command": "gprof",
+            "args": [
+                "${command:cmake.getLaunchTargetPath}",
+                "${workspaceFolder}/profile/gmon.out",
+                ">",
+                "${workspaceFolder}/profile/${command:cmake.getLaunchTargetFilename}.gprof.txt"
+            ],
+            "options": {
+                "statusbar": {
+                    "hide": true
+                }
+            }
+        },
+        {
+            "label": "gprof: clean gmon.out",
+            "type": "shell",
+            "command": "rm ${workspaceFolder}/profile/gmon.out",
+            "options": {
+                "statusbar": {
+                    "hide": true
+                }
+            }
+        },
+        {
+            "label": "Profile",
+            "dependsOrder": "sequence",
+            "dependsOn": [
+                "CMake: build current target",
+                "gprof: run executable",
+                "gprof: profile",
+                "gprof: clean gmon.out"
+            ]
+        },
+        {
+            "label": "Time w/ i",
+            "type": "shell",
+            "command": "time",
+            "args": [
+                "${command:cmake.getLaunchTargetPath}",
+                "<",
+                "${workspaceFolder}/io/${command:cmake.getLaunchTargetFilename}.input.txt",
+                ">",
+                "${workspaceFolder}/io/${command:cmake.getLaunchTargetFilename}.output.txt"
+            ],
+            "dependsOn": [
+                "CMake: build current target"
+            ]
+        },
+        {
+            "label": "Time w/o i",
+            "type": "shell",
+            "command": "time",
+            "args": [
+                "${command:cmake.getLaunchTargetPath}",
+                ">",
+                "${workspaceFolder}/io/${command:cmake.getLaunchTargetFilename}.output.txt"
+            ],
+            "dependsOn": [
+                "CMake: build current target"
+            ]
+        },
+        {
+            "label": "Memory",
+            "type": "shell",
+            "command": "/usr/bin/time",
+            "args": [
+                "-f",
+                "Max Memory Usage: %MKB User Time: %Us System Time: %Ss Elapsed Time: %Es",
+                "${command:cmake.getLaunchTargetPath}",
+                "<",
+                "${workspaceFolder}/io/${command:cmake.getLaunchTargetFilename}.input.txt",
+                ">",
+                "${workspaceFolder}/io/${command:cmake.getLaunchTargetFilename}.output.txt"
+            ],
+            "dependsOn": [
+                "CMake: build current target"
+            ]
+        }
+    ]
+}

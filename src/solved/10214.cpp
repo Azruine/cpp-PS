@@ -18,27 +18,30 @@ std::istream &operator>>(std::istream &is, std::pair<int, int> &p)
 class Solver
 {
 private:
+    int t;
     int n;
-    std::vector<int> arr;
+    std::vector<std::pair<int, int>> arr;
 
 public:
     Solver()
     {
-        std::cin >> n;
-        arr.resize(n);
-        for (auto &i : arr)
-            std::cin >> i;
+        std::cin >> t;
+        n = 9;
     }
     ~Solver() {}
     void solve()
     {
-        std::sort(arr.begin(), arr.end(), std::greater<int>());
-        int ans = INT_MIN;
-        for (int i = 0; i < n; i++)
+        while (t--)
         {
-            ans = std::max(ans, arr[i] * (i + 1));
+            int a = 0, b = 0;
+            std::pair<int, int> p;
+            for (int i = 0; i < n; i++)
+            {
+                std::cin >> p;
+                a += p.first, b += p.second;
+            }
+            std::cout << (a > b ? "Yonsei" : (a < b ? "Korea" : "Draw")) << "\n";
         }
-        std::cout << ans << "\n";
     }
 };
 

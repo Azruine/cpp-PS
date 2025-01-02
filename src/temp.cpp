@@ -19,32 +19,26 @@ class Solver
 {
 private:
     int n;
-    std::vector<std::pair<int, int>> arr;
+    std::vector<int> arr;
 
 public:
     Solver()
     {
         std::cin >> n;
         arr.resize(n);
-        for (int i = 0; i < n; i++)
-            std::cin >> arr[i];
+        for (auto &i : arr)
+            std::cin >> i;
     }
     ~Solver() {}
     void solve()
     {
-        std::vector<int> dp(n + 1, 0);
-        dp[0] = 0;
-        for (int i = 0; i < n + 1; i++)
+        std::sort(arr.begin(), arr.end(), std::greater<int>());
+        int ans = INT_MIN;
+        for (int i = 0; i < n; i++)
         {
-            for (int j = 0; j <= i; j++)
-            {
-                if (j + arr[j].first <= i)
-                {
-                    dp[i] = std::max(dp[i], dp[j] + arr[j].second);
-                }
-            }
+            ans = std::max(ans, arr[i] * (i + 1));
         }
-        std::cout << dp.back();
+        std::cout << ans << "\n";
     }
 };
 

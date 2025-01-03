@@ -1,0 +1,25 @@
+buildType:
+  default: debug
+  choices:
+    debug:
+      short: D
+      long: Build with debugging information
+      buildType: Debug
+    release:
+      short: R
+      long: Optimize the resulting binaries
+      buildType: Release
+
+profile:
+  default: no
+  choices:
+    no:
+      short: NP
+      long: Disable profile flag
+      settings:
+        CXX_FLAG_PROFILE: FALSE
+    yes:
+      short: P
+      long: Enable profile flag (-pg)
+      settings:
+        CXX_FLAG_PROFILE: TRUE

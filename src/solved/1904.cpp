@@ -24,8 +24,8 @@ public:
     ~Solver() {}
     void solve()
     {
-        dp[1] = 1;
         dp[2] = 2;
+        dp[1] = 1;
         std::function<int(int)> getDp = [&](int i) -> int
         {
             if (dp[i] != 0)

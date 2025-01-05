@@ -82,60 +82,6 @@ public:
             tree[i] = 0;
         }
     }
-    // lazy propagation
-    // void apply(int p, int value)
-    // {
-    //     tree[p] += value;
-    //     if (p < size)
-    //         lazy[p] += value;
-    // }
-    // void build(int p)
-    // {
-    //     while (p > 1)
-    //         p >>= 1, tree[p] = (tree[p << 1] + tree[p << 1 | 1]) + lazy[p];
-    // }
-    // void push(int p)
-    // {
-    //     for (int s = height; s > 0; s--)
-    //     {
-    //         int i = p >> s;
-    //         if (lazy[i] != 0)
-    //         {
-    //             apply(i << 1, lazy[i]);
-    //             apply(i << 1 | 1, lazy[i]);
-    //             lazy[i] = 0;
-    //         }
-    //     }
-    // }
-    // void increase(int l, int r, int value)
-    // {
-    //     l += size, r += size;
-    //     int l0 = l, r0 = r;
-    //     for (; l < r; l >>= 1, r >>= 1)
-    //     {
-    //         if (l & 1)
-    //             apply(l++, value);
-    //         if (r & 1)
-    //             apply(--r, value);
-    //     }
-    //     build(l0);
-    //     build(r0 - 1);
-    // }
-    // int query(int l, int r)
-    // {
-    //     l += size, r += size;
-    //     push(l);
-    //     push(r - 1);
-    //     int res = 0;
-    //     for (; l < r; l >>= 1, r >>= 1)
-    //     {
-    //         if (l & 1)
-    //             res += tree[l++];
-    //         if (r & 1)
-    //             res += tree[--r];
-    //     }
-    //     return res;
-    // }
 };
 
 class Solver

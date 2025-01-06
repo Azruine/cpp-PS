@@ -12,28 +12,15 @@ using ld = long double;
 class Solver
 {
 private:
-    int n;
-    std::vector<int> dp;
 
 public:
     Solver()
     {
-        std::cin >> n;
-        dp.assign(n + 1, 0);
     }
     ~Solver() {}
     void solve()
     {
-        dp[1] = 1;
-        dp[2] = 2;
-        std::function<int(int)> getDp = [&](int i) -> int
-        {
-            if (dp[i] != 0)
-                return dp[i];
-            else
-                return dp[i] = (getDp(i - 1) + getDp(i - 2)) % 15746;
-        };
-        std::cout << getDp(n) << '\n';
+
     }
 };
 

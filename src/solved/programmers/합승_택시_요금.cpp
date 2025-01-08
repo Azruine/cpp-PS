@@ -6,12 +6,6 @@
 
 using namespace std;
 
-struct Compare {
-    bool operator()(const std::pair<int, int>& lhs, const std::pair<int, int>& rhs) {
-        return lhs.second > rhs.second;
-    }
-};
-
 int solution(int n, int s, int a, int b, vector<vector<int>> fares) {
     s--, a--, b--;
     int answer = INT_MAX;

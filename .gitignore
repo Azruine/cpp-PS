@@ -1,0 +1,11 @@
+/build
+
+**/temp.*
+
+.vscode
+
+!.vscode/tasks.json
+
+!.vscode/launch.json
+
+!.vscode/cpp.code-snippets

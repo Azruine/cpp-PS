@@ -1,0 +1,144 @@
+// For format details, see https://aka.ms/devcontainer.json. For config options, see the
+// README at: https://github.com/devcontainers/templates/tree/main/src/alpine
+{
+	"name": "CPP-PS",
+	// Or use a Dockerfile or Docker Compose file. More info: https://containers.dev/guide/dockerfile
+	"build": {
+		"dockerfile": "Dockerfile"
+	},
+	"customizations": {
+		"vscode": {
+			"extensions": [
+				"actboy168.tasks",
+				"adpyke.codesnap",
+				"albert.tabout",
+				"bierner.markdown-mermaid",
+				"byi8220.indented-block-highlighting",
+				"davidanson.vscode-markdownlint",
+				"donjayamanne.githistory",
+				"eamodio.gitlens",
+				"github.copilot",
+				"github.copilot-chat",
+				"jeff-hykin.better-cpp-syntax",
+				"mcu-debug.memory-view",
+				"mhutchie.git-graph",
+				"ms-vscode.cmake-tools",
+				"ms-vscode.cpptools",
+				"ms-vscode.cpptools-extension-pack",
+				"ms-vscode.cpptools-themes",
+				"ms-vscode.makefile-tools",
+				"ms-azuretools.vscode-docker",
+				"oderwat.indent-rainbow",
+				"pkief.material-icon-theme",
+				"saptarshidey.latex-viewer",
+				"shd101wyy.markdown-preview-enhanced",
+				"twxs.cmake",
+				"usernamehw.errorlens",
+				"visualstudioexptteam.intellicode-api-usage-examples",
+				"visualstudioexptteam.vscodeintellicode"
+			],
+			"settings": {
+				"settingsSync.ignoredSettings": [
+					"editor.fontSize",
+					"debug.console.fontSize",
+					"terminal.integrated.fontSize"
+				],
+				"debug.openDebug": "neverOpen",
+				"editor.fontFamily": "CaskaydiaCove NF, Consolas, 'Noto Sans KR', monospace",
+				"editor.fontLigatures": "'ss01'",
+				"editor.semanticTokenColorCustomizations": {
+					"rules": {
+						"class": {
+							"underline": true
+						},
+						"module": {
+							"underline": true
+						},
+						"namespace": {
+							"underline": true
+						},
+						"parameter": {
+							"italic": true
+						},
+						"comment": {
+							"italic": true
+						},
+						"function.defaultLibrary": {
+							"italic": true
+						},
+						"class.builtin": {
+							"underline": false,
+							"italic": true
+						}
+					}
+				},
+				"editor.tokenColorCustomizations": {
+					"textMateRules": [
+						{
+							"scope": [
+								"comment",
+								"storage.type",
+								"constant.language",
+								"variable.language",
+								"entity.other.attribute-name",
+								"keyword.control",
+								"keyword.operator.logical.python",
+								"keyword.operator.expression.in.js",
+								"keyword.operator.expression.of.js"
+							],
+							"settings": {
+								"fontStyle": "italic"
+							}
+						}
+					]
+				},
+				"editor.fontVariations": false,
+				"github.copilot.advanced": {},
+				"workbench.iconTheme": "material-icon-theme",
+				"terminal.integrated.fontSize": 14,
+				"chat.editor.fontSize": 14,
+				"files.autoSave": "afterDelay",
+				"cmake.options.statusBarVisibility": "compact",
+				"rust-analyzer.debug.engine": "vadimcn.vscode-lldb",
+				"remote.SSH.remotePlatform": {
+					"azruine-server": "linux",
+					"home-wsl2": "linux",
+					"wsl2": "linux",
+					"server": "linux"
+				},
+				"cmake.showOptionsMovedNotification": false,
+				"rust-analyzer.check.command": "clippy",
+				"security.workspace.trust.untrustedFiles": "open",
+				"rust-analyzer.rustfmt.extraArgs": [
+					"--config",
+					"fn_single_line=true,brace_style=AlwaysNextLine,combine_control_expr=false,control_brace_style=AlwaysNextLine"
+				],
+				"cmake.sourceDirectory": "${workspaceFolder}",
+				"github.copilot.editor.enableAutoCompletions": true,
+				"cmake.pinnedCommands": [
+					"workbench.action.tasks.configureTaskRunner",
+					"workbench.action.tasks.runTask"
+				],
+				"cmake.showNotAllDocumentsSavedQuestion": false,
+				"python.createEnvironment.trigger": "off",
+				"makefile.configureOnOpen": true,
+				"github.copilot.enable": {
+					"*": true,
+					"plaintext": false,
+					"markdown": false,
+					"scminput": false
+				}
+			}
+		}
+	}
+	// Features to add to the dev container. More info: https://containers.dev/features.
+	// "features": {},
+	// Use 'forwardPorts' to make a list of ports inside the container available locally.
+	// "forwardPorts": [],
+	// Use 'postCreateCommand' to run commands after the container is created.
+	// "postCreateCommand": "uname -a",
+	// Configure tool-specific properties.
+	// "customizations": {},
+	// Uncomment to connect as root instead. More info: https://aka.ms/dev-containers-non-root.
+	// "remoteUser": "root"
+}

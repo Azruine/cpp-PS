@@ -1,6 +1,6 @@
 /build
 
-**/temp.*
+**/temp*.*
 
 .vscode/*
 
@@ -9,3 +9,7 @@
 !.vscode/launch.json
 
 !.vscode/cpp.code-snippets
+
+/temp
+
+/src/solved/baekjoon/not_opened

@@ -1,3 +1,3 @@
-FROM mcr.microsoft.com/devcontainers/base:alpine-3.20
+FROM debian:trixie-slim
 
-RUN apk update && apk add cmake gdb
+RUN apt update && apt install -y gcc gdb g++ cmake git

@@ -11,6 +11,12 @@
 	],
 	"customizations": {
 		"vscode": {
+			"settings": {
+				"C_Cpp.default.compilerPath": "/usr/bin/g++",
+				"C_Cpp.default.cStandard": "c11",
+				"C_Cpp.default.cppStandard": "c++23",
+				"C_Cpp.default.intelliSenseMode": "linux-gcc-x64"
+			},
 			"extensions": [
 				"actboy168.tasks",
 				"adpyke.codesnap",

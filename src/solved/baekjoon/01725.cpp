@@ -112,7 +112,6 @@ class Solver
 {
 private:
     int n;
-
     Seg seg;
 
 public:

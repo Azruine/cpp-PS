@@ -46,3 +46,37 @@ void union(int a, int b)
 https://leetcode.com/problems/redundant-connection/?envType=daily-question&envId=2025-01-29
 
 이 문제에서는 union을 걸 때 bool로 a == b를 반환하면 된다.
+
+class UnionFind
+{
+private:
+    std::vector<int> data;
+
+public:
+    UnionFind() {}
+    ~UnionFind() {}
+    void init(int n)
+    {
+        data.resize(n);
+        for (int i = 0; i < n; i++)
+            data[i] = i;
+    }
+    int find(int a)
+    {
+        if (data[a] == a)
+            return a;
+        data[a] = find(data[a]);
+        return data[a];
+    }
+    void union_(int a, int b)
+    {
+        a = find(a), b = find(b);
+        if (a != b)
+        {
+            if (a > b)
+                std::swap(a, b);
+            data[b] = a;
+        }
+        return;
+    }
+};

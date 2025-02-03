@@ -1,4 +1,4 @@
-#include <bits/stdc++.h>
+#include <string>
 #include <sys/stat.h>
 #include <sys/mman.h>
 #include <unistd.h>
@@ -112,9 +112,3 @@ OUTPUT& operator<< (OUTPUT& out, T i) {
 #define istream INPUT
 #define ostream OUTPUT
 /////////////////////////////////////////////////////////////////////////////////////////////
-
-int main()
-{
-	cout << "Hello, World!" << '\n';
-	return 0;
-}

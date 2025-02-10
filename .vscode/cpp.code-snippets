@@ -51,5 +51,14 @@
             "}"
         ],
         "description": "Solver Class"
+    },
+    "leetcode": {
+        "prefix" : "leetcode",
+        "body" : [
+            "class Solution",
+            "{",
+            "public:",
+            "};"
+        ]
     }
 }

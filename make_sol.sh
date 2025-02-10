@@ -20,6 +20,13 @@ case "$PROBLEM_FOLDER" in
         echo "Setting target folder to programmers"
         TARGET_FOLDER="programmers"
         ;;
+    3)
+        echo "Setting target folder to leetcode"
+        TARGET_FOLDER="leetcode"
+        if [[ "$PROBLEM_NAME" =~ ^[0-9]{4}$ ]]; then
+            PROBLEM_NAME=$(printf "%05d" "$PROBLEM_NAME")
+        fi
+        ;;
     *)
         echo "Invalid problem_folder value. Use 1 for baekjoon or 2 for programmers."
         exit 1

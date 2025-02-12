@@ -2,6 +2,8 @@
 
 **/temp*.*
 
+**/test*.*
+
 .vscode/*
 
 !.vscode/tasks.json

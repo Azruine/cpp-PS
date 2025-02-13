@@ -42,4 +42,4 @@ touch ./src/solved/$TARGET_FOLDER/$PROBLEM_NAME.cpp
 touch ./src/solved/$TARGET_FOLDER/$PROBLEM_NAME.md
 
 cat ./src/temp.cpp > ./src/solved/$TARGET_FOLDER/$PROBLEM_NAME.cpp
-echo "# $PROBLEM_NAME" > ./src/solved/$TARGET_FOLDER/$PROBLEM_NAME.md
+echo "# $PROBLEM_NAME. [](./$PROBLEM_NAME.cpp)" > ./src/solved/$TARGET_FOLDER/$PROBLEM_NAME.md

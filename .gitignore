@@ -12,6 +12,6 @@
 
 !.vscode/cpp.code-snippets
 
-/temp
+/temp*
 
 /src/solved/baekjoon/not_opened

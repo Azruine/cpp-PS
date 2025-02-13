@@ -15,7 +15,6 @@ endif()
 
 if(CXX_SOURCES)
     add_executable(temp src/temp.cpp)
-    add_executable(test_case_generator src/test_case_generator.cpp)
 endif()
 
 set(CPACK_PROJECT_NAME ${PROJECT_NAME})

@@ -9,6 +9,8 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 file(GLOB_RECURSE C_SOURCES "*.c")
 file(GLOB_RECURSE CXX_SOURCES "*.cpp")
 
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/src/include)
+
 if(C_SOURCES)
 
 endif()

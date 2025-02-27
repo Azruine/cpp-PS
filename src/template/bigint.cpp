@@ -1,8 +1,8 @@
-#include <vector>
-#include <iostream>
-#include <string>
-#include <sstream>
 #include <iomanip>
+#include <iostream>
+#include <sstream>
+#include <string>
+#include <vector>
 
 using ll = long long int;
 
@@ -12,112 +12,81 @@ using ll = long long int;
 */
 const int base = 1000000000;
 const int base_digits = 9;
-struct bigint
-{
+struct bigint {
     std::vector<int> a;
     int sign;
     /*<arpa>*/
-    int size()
-    {
-        if (a.empty())
-            return 0;
+    int size() {
+        if (a.empty()) return 0;
         int ans = (a.size() - 1) * base_digits;
         int ca = a.back();
-        while (ca)
-            ans++, ca /= 10;
+        while (ca) ans++, ca /= 10;
         return ans;
     }
-    bigint operator^(const bigint &v)
-    {
+    bigint operator^(const bigint &v) {
         bigint ans = 1, a = *this, b = v;
-        while (!b.isZero())
-        {
-            if (b % 2)
-                ans *= a;
+        while (!b.isZero()) {
+            if (b % 2) ans *= a;
             a *= a, b /= 2;
         }
         return ans;
     }
-    std::string to_string()
-    {
+    std::string to_string() {
         std::stringstream ss;
         ss << *this;
         std::string s;
         ss >> s;
         return s;
     }
-    int sumof()
-    {
+    int sumof() {
         std::string s = to_string();
         int ans = 0;
-        for (auto c : s)
-            ans += c - '0';
+        for (auto c : s) ans += c - '0';
         return ans;
     }
     /*</arpa>*/
-    bigint() : sign(1)
-    {
-    }
+    bigint() : sign(1) {}
 
-    bigint(ll v)
-    {
-        *this = v;
-    }
+    bigint(ll v) { *this = v; }
 
-    bigint(const std::string &s)
-    {
-        read(s);
-    }
+    bigint(const std::string &s) { read(s); }
 
-    void operator=(const bigint &v)
-    {
+    void operator=(const bigint &v) {
         sign = v.sign;
         a = v.a;
     }
 
-    void operator=(ll v)
-    {
+    void operator=(ll v) {
         sign = 1;
         a.clear();
-        if (v < 0)
-            sign = -1, v = -v;
-        for (; v > 0; v = v / base)
-            a.push_back(v % base);
+        if (v < 0) sign = -1, v = -v;
+        for (; v > 0; v = v / base) a.push_back(v % base);
     }
 
-    bigint operator+(const bigint &v) const
-    {
-        if (sign == v.sign)
-        {
+    bigint operator+(const bigint &v) const {
+        if (sign == v.sign) {
             bigint res = v;
 
-            for (int i = 0, carry = 0; i < (int)std::max(a.size(), v.a.size()) || carry; ++i)
-            {
-                if (i == (int)res.a.size())
-                    res.a.push_back(0);
+            for (int i = 0, carry = 0;
+                 i < (int)std::max(a.size(), v.a.size()) || carry; ++i) {
+                if (i == (int)res.a.size()) res.a.push_back(0);
                 res.a[i] += carry + (i < (int)a.size() ? a[i] : 0);
                 carry = res.a[i] >= base;
-                if (carry)
-                    res.a[i] -= base;
+                if (carry) res.a[i] -= base;
             }
             return res;
         }
         return *this - (-v);
     }
 
-    bigint operator-(const bigint &v) const
-    {
-        if (sign == v.sign)
-        {
-            if (abs() >= v.abs())
-            {
+    bigint operator-(const bigint &v) const {
+        if (sign == v.sign) {
+            if (abs() >= v.abs()) {
                 bigint res = *this;
-                for (int i = 0, carry = 0; i < (int)v.a.size() || carry; ++i)
-                {
+                for (int i = 0, carry = 0; i < (int)v.a.size() || carry; ++i) {
                     res.a[i] -= carry + (i < (int)v.a.size() ? v.a[i] : 0);
                     carry = res.a[i] < 0;
-                    if (carry)
-                        res.a[i] += base;
+                    if (carry) res.a[i] += base;
                 }
                 res.trim();
                 return res;
@@ -127,70 +96,60 @@ struct bigint
         return *this + (-v);
     }
 
-    void operator*=(int v)
-    {
-        if (v < 0)
-            sign = -sign, v = -v;
-        for (int i = 0, carry = 0; i < (int)a.size() || carry; ++i)
-        {
-            if (i == (int)a.size())
-                a.push_back(0);
+    void operator*=(int v) {
+        if (v < 0) sign = -sign, v = -v;
+        for (int i = 0, carry = 0; i < (int)a.size() || carry; ++i) {
+            if (i == (int)a.size()) a.push_back(0);
             ll cur = a[i] * (ll)v + carry;
             carry = (int)(cur / base);
             a[i] = (int)(cur % base);
-            // asm("divl %%ecx" : "=a"(carry), "=d"(a[i]) : "A"(cur), "c"(base));
+            // asm("divl %%ecx" : "=a"(carry), "=d"(a[i]) : "A"(cur),
+            // "c"(base));
         }
         trim();
     }
 
-    bigint operator*(int v) const
-    {
+    bigint operator*(int v) const {
         bigint res = *this;
         res *= v;
         return res;
     }
 
-    void operator*=(ll v)
-    {
-        if (v < 0)
-            sign = -sign, v = -v;
-        for (int i = 0, carry = 0; i < (int)a.size() || carry; ++i)
-        {
-            if (i == (int)a.size())
-                a.push_back(0);
+    void operator*=(ll v) {
+        if (v < 0) sign = -sign, v = -v;
+        for (int i = 0, carry = 0; i < (int)a.size() || carry; ++i) {
+            if (i == (int)a.size()) a.push_back(0);
             ll cur = a[i] * (ll)v + carry;
             carry = (int)(cur / base);
             a[i] = (int)(cur % base);
-            // asm("divl %%ecx" : "=a"(carry), "=d"(a[i]) : "A"(cur), "c"(base));
+            // asm("divl %%ecx" : "=a"(carry), "=d"(a[i]) : "A"(cur),
+            // "c"(base));
         }
         trim();
     }
 
-    bigint operator*(ll v) const
-    {
+    bigint operator*(ll v) const {
         bigint res = *this;
         res *= v;
         return res;
     }
 
-    friend std::pair<bigint, bigint> divmod(const bigint &a1, const bigint &b1)
-    {
+    friend std::pair<bigint, bigint> divmod(const bigint &a1,
+                                            const bigint &b1) {
         int norm = base / (b1.a.back() + 1);
         bigint a = a1.abs() * norm;
         bigint b = b1.abs() * norm;
         bigint q, r;
         q.a.resize(a.a.size());
 
-        for (int i = a.a.size() - 1; i >= 0; i--)
-        {
+        for (int i = a.a.size() - 1; i >= 0; i--) {
             r *= base;
             r += a.a[i];
             int s1 = r.a.size() <= b.a.size() ? 0 : r.a[b.a.size()];
             int s2 = r.a.size() <= b.a.size() - 1 ? 0 : r.a[b.a.size() - 1];
             int d = ((ll)base * s1 + s2) / b.a.back();
             r -= b * d;
-            while (r < 0)
-                r += b, --d;
+            while (r < 0) r += b, --d;
             q.a[i] = d;
         }
 
@@ -201,22 +160,13 @@ struct bigint
         return std::make_pair(q, r / norm);
     }
 
-    bigint operator/(const bigint &v) const
-    {
-        return divmod(*this, v).first;
-    }
+    bigint operator/(const bigint &v) const { return divmod(*this, v).first; }
 
-    bigint operator%(const bigint &v) const
-    {
-        return divmod(*this, v).second;
-    }
+    bigint operator%(const bigint &v) const { return divmod(*this, v).second; }
 
-    void operator/=(int v)
-    {
-        if (v < 0)
-            sign = -sign, v = -v;
-        for (int i = (int)a.size() - 1, rem = 0; i >= 0; --i)
-        {
+    void operator/=(int v) {
+        if (v < 0) sign = -sign, v = -v;
+        for (int i = (int)a.size() - 1, rem = 0; i >= 0; --i) {
             ll cur = a[i] + rem * (ll)base;
             a[i] = (int)(cur / v);
             rem = (int)(cur % v);
@@ -224,130 +174,82 @@ struct bigint
         trim();
     }
 
-    bigint operator/(int v) const
-    {
+    bigint operator/(int v) const {
         bigint res = *this;
         res /= v;
         return res;
     }
 
-    int operator%(int v) const
-    {
-        if (v < 0)
-            v = -v;
+    int operator%(int v) const {
+        if (v < 0) v = -v;
         int m = 0;
-        for (int i = a.size() - 1; i >= 0; --i)
-            m = (a[i] + m * (ll)base) % v;
+        for (int i = a.size() - 1; i >= 0; --i) m = (a[i] + m * (ll)base) % v;
         return m * sign;
     }
 
-    void operator+=(const bigint &v)
-    {
-        *this = *this + v;
-    }
-    void operator-=(const bigint &v)
-    {
-        *this = *this - v;
-    }
-    void operator*=(const bigint &v)
-    {
-        *this = *this * v;
-    }
-    void operator/=(const bigint &v)
-    {
-        *this = *this / v;
-    }
+    void operator+=(const bigint &v) { *this = *this + v; }
+    void operator-=(const bigint &v) { *this = *this - v; }
+    void operator*=(const bigint &v) { *this = *this * v; }
+    void operator/=(const bigint &v) { *this = *this / v; }
 
-    bool operator<(const bigint &v) const
-    {
-        if (sign != v.sign)
-            return sign < v.sign;
+    bool operator<(const bigint &v) const {
+        if (sign != v.sign) return sign < v.sign;
         if (a.size() != v.a.size())
             return a.size() * sign < v.a.size() * v.sign;
         for (int i = a.size() - 1; i >= 0; i--)
-            if (a[i] != v.a[i])
-                return a[i] * sign < v.a[i] * sign;
+            if (a[i] != v.a[i]) return a[i] * sign < v.a[i] * sign;
         return false;
     }
 
-    bool operator>(const bigint &v) const
-    {
-        return v < *this;
-    }
-    bool operator<=(const bigint &v) const
-    {
-        return !(v < *this);
-    }
-    bool operator>=(const bigint &v) const
-    {
-        return !(*this < v);
-    }
-    bool operator==(const bigint &v) const
-    {
+    bool operator>(const bigint &v) const { return v < *this; }
+    bool operator<=(const bigint &v) const { return !(v < *this); }
+    bool operator>=(const bigint &v) const { return !(*this < v); }
+    bool operator==(const bigint &v) const {
         return !(*this < v) && !(v < *this);
     }
-    bool operator!=(const bigint &v) const
-    {
-        return *this < v || v < *this;
+    bool operator!=(const bigint &v) const { return *this < v || v < *this; }
+
+    void trim() {
+        while (!a.empty() && !a.back()) a.pop_back();
+        if (a.empty()) sign = 1;
     }
 
-    void trim()
-    {
-        while (!a.empty() && !a.back())
-            a.pop_back();
-        if (a.empty())
-            sign = 1;
-    }
+    bool isZero() const { return a.empty() || (a.size() == 1 && !a[0]); }
 
-    bool isZero() const
-    {
-        return a.empty() || (a.size() == 1 && !a[0]);
-    }
-
-    bigint operator-() const
-    {
+    bigint operator-() const {
         bigint res = *this;
         res.sign = -sign;
         return res;
     }
 
-    bigint abs() const
-    {
+    bigint abs() const {
         bigint res = *this;
         res.sign *= res.sign;
         return res;
     }
 
-    ll longValue() const
-    {
+    ll longValue() const {
         ll res = 0;
-        for (int i = a.size() - 1; i >= 0; i--)
-            res = res * base + a[i];
+        for (int i = a.size() - 1; i >= 0; i--) res = res * base + a[i];
         return res * sign;
     }
 
-    friend bigint gcd(const bigint &a, const bigint &b)
-    {
+    friend bigint gcd(const bigint &a, const bigint &b) {
         return b.isZero() ? a : gcd(b, a % b);
     }
-    friend bigint lcm(const bigint &a, const bigint &b)
-    {
+    friend bigint lcm(const bigint &a, const bigint &b) {
         return a / gcd(a, b) * b;
     }
 
-    void read(const std::string &s)
-    {
+    void read(const std::string &s) {
         sign = 1;
         a.clear();
         int pos = 0;
-        while (pos < (int)s.size() && (s[pos] == '-' || s[pos] == '+'))
-        {
-            if (s[pos] == '-')
-                sign = -sign;
+        while (pos < (int)s.size() && (s[pos] == '-' || s[pos] == '+')) {
+            if (s[pos] == '-') sign = -sign;
             ++pos;
         }
-        for (int i = s.size() - 1; i >= pos; i -= base_digits)
-        {
+        for (int i = s.size() - 1; i >= pos; i -= base_digits) {
             int x = 0;
             for (int j = std::max(pos, i - base_digits + 1); j <= i; j++)
                 x = x * 10 + s[j] - '0';
@@ -356,59 +258,50 @@ struct bigint
         trim();
     }
 
-    friend std::istream &operator>>(std::istream &stream, bigint &v)
-    {
+    friend std::istream &operator>>(std::istream &stream, bigint &v) {
         std::string s;
         stream >> s;
         v.read(s);
         return stream;
     }
 
-    friend std::ostream &operator<<(std::ostream &stream, const bigint &v)
-    {
-        if (v.sign == -1)
-            stream << '-';
+    friend std::ostream &operator<<(std::ostream &stream, const bigint &v) {
+        if (v.sign == -1) stream << '-';
         stream << (v.a.empty() ? 0 : v.a.back());
         for (int i = (int)v.a.size() - 2; i >= 0; --i)
             stream << std::setw(base_digits) << std::setfill('0') << v.a[i];
         return stream;
     }
 
-    static std::vector<int> convert_base(const std::vector<int> &a, int old_digits, int new_digits)
-    {
+    static std::vector<int> convert_base(const std::vector<int> &a,
+                                         int old_digits, int new_digits) {
         std::vector<ll> p(std::max(old_digits, new_digits) + 1);
         p[0] = 1;
-        for (int i = 1; i < (int)p.size(); i++)
-            p[i] = p[i - 1] * 10;
+        for (int i = 1; i < (int)p.size(); i++) p[i] = p[i - 1] * 10;
         std::vector<int> res;
         ll cur = 0;
         int cur_digits = 0;
-        for (int i = 0; i < (int)a.size(); i++)
-        {
+        for (int i = 0; i < (int)a.size(); i++) {
             cur += a[i] * p[cur_digits];
             cur_digits += old_digits;
-            while (cur_digits >= new_digits)
-            {
+            while (cur_digits >= new_digits) {
                 res.push_back(int(cur % p[new_digits]));
                 cur /= p[new_digits];
                 cur_digits -= new_digits;
             }
         }
         res.push_back((int)cur);
-        while (!res.empty() && !res.back())
-            res.pop_back();
+        while (!res.empty() && !res.back()) res.pop_back();
         return res;
     }
 
-    static std::vector<ll> karatsubaMultiply(const std::vector<ll> &a, const std::vector<ll> &b)
-    {
+    static std::vector<ll> karatsubaMultiply(const std::vector<ll> &a,
+                                             const std::vector<ll> &b) {
         int n = a.size();
         std::vector<ll> res(n + n);
-        if (n <= 32)
-        {
+        if (n <= 32) {
             for (int i = 0; i < n; i++)
-                for (int j = 0; j < n; j++)
-                    res[i + j] += a[i] * b[j];
+                for (int j = 0; j < n; j++) res[i + j] += a[i] * b[j];
             return res;
         }
 
@@ -421,43 +314,31 @@ struct bigint
         std::vector<ll> a1b1 = karatsubaMultiply(a1, b1);
         std::vector<ll> a2b2 = karatsubaMultiply(a2, b2);
 
-        for (int i = 0; i < k; i++)
-            a2[i] += a1[i];
-        for (int i = 0; i < k; i++)
-            b2[i] += b1[i];
+        for (int i = 0; i < k; i++) a2[i] += a1[i];
+        for (int i = 0; i < k; i++) b2[i] += b1[i];
 
         std::vector<ll> r = karatsubaMultiply(a2, b2);
-        for (int i = 0; i < (int)a1b1.size(); i++)
-            r[i] -= a1b1[i];
-        for (int i = 0; i < (int)a2b2.size(); i++)
-            r[i] -= a2b2[i];
+        for (int i = 0; i < (int)a1b1.size(); i++) r[i] -= a1b1[i];
+        for (int i = 0; i < (int)a2b2.size(); i++) r[i] -= a2b2[i];
 
-        for (int i = 0; i < (int)r.size(); i++)
-            res[i + k] += r[i];
-        for (int i = 0; i < (int)a1b1.size(); i++)
-            res[i] += a1b1[i];
-        for (int i = 0; i < (int)a2b2.size(); i++)
-            res[i + n] += a2b2[i];
+        for (int i = 0; i < (int)r.size(); i++) res[i + k] += r[i];
+        for (int i = 0; i < (int)a1b1.size(); i++) res[i] += a1b1[i];
+        for (int i = 0; i < (int)a2b2.size(); i++) res[i + n] += a2b2[i];
         return res;
     }
 
-    bigint operator*(const bigint &v) const
-    {
+    bigint operator*(const bigint &v) const {
         std::vector<int> a6 = convert_base(this->a, base_digits, 6);
         std::vector<int> b6 = convert_base(v.a, base_digits, 6);
         std::vector<ll> a(a6.begin(), a6.end());
         std::vector<ll> b(b6.begin(), b6.end());
-        while (a.size() < b.size())
-            a.push_back(0);
-        while (b.size() < a.size())
-            b.push_back(0);
-        while (a.size() & (a.size() - 1))
-            a.push_back(0), b.push_back(0);
+        while (a.size() < b.size()) a.push_back(0);
+        while (b.size() < a.size()) b.push_back(0);
+        while (a.size() & (a.size() - 1)) a.push_back(0), b.push_back(0);
         std::vector<ll> c = karatsubaMultiply(a, b);
         bigint res;
         res.sign = sign * v.sign;
-        for (int i = 0, carry = 0; i < (int)c.size(); i++)
-        {
+        for (int i = 0, carry = 0; i < (int)c.size(); i++) {
             ll cur = c[i] + carry;
             res.a.push_back((int)(cur % 1000000));
             carry = (int)(cur / 1000000);
@@ -466,28 +347,24 @@ struct bigint
         res.trim();
         return res;
     }
-    bigint operator--()
-	{
-		*this = *this - 1;
-		return *this;
-	}
-	bigint operator--(int)
-	{
-		bigint temp = *this;
-		*this = *this - 1;
-		return temp;
-	}
-	bigint operator++()
-	{
-		*this = *this + 1;
-		return *this;
-	}
-	bigint operator++(int)
-	{
-		bigint temp = *this;
-		*this = *this + 1;
-		return temp;
-	}
+    bigint operator--() {
+        *this = *this - 1;
+        return *this;
+    }
+    bigint operator--(int) {
+        bigint temp = *this;
+        *this = *this - 1;
+        return temp;
+    }
+    bigint operator++() {
+        *this = *this + 1;
+        return *this;
+    }
+    bigint operator++(int) {
+        bigint temp = *this;
+        *this = *this + 1;
+        return temp;
+    }
 };
 /*
   #######################   THE   BIG   INT   ##########################

@@ -1,64 +1,13 @@
 #include <bits/stdc++.h>
-class SegTree {
-private:
-    int height;
-    int size;
-    std::vector<int> data;
-    std::vector<int> delay;
 
-public:
-    SegTree() {}
-    ~SegTree() {}
-    void init(int n) {
-        size = n;
-        height = sizeof(int) * 8 - __builtin_clz(size);
-        data.assign(size << 1, 0);
-        delay.assign(size, 0);
-    }
-    void apply(int pos, int value) {
-        data[pos] += value;
-        if (pos < size) {
-            delay[pos] = value;
-        }
-    }
-    void build(int pos) {
-        while (pos > 1) {
-            pos >>= 1;
-            data[pos] = data[pos << 1] + data[pos << 1 | 1] + delay[pos];
-        }
-    }
-    void push(int pos) {
-        for (int s = height; s > 0; --s) {
-            int i = pos >> s;
-            if (delay[i] != 0) {
-                apply(i << 1, delay[i]);
-                apply(i << 1 | 1, delay[i]);
-                delay[i] = 0;
-            }
-        }
-    }
-    void increase(int l, int r, int value) {
-        l += size, r += size;
-        int l0 = l, r0 = r;
-        for (; l < r; l >>= 1, r >>= 1) {
-            if (l & 1) apply(l++, value);
-            if (r & 1) apply(--r, value);
-        }
-        build(l0);
-        build(r0 - 1);
-    }
-    int query(int l, int r) {
-        l += size, r += size;
-        push(l);
-        push(r - 1);
-        int res = 0;
-        for (; l < r; l >>= 1, r >>= 1) {
-            if (l & 1) res += data[l++];
-            if (r & 1) res += data[--r];
-        }
-        return res;
-    }
-};
+using ll = long long int;
+using ull = unsigned long long int;
+using ld = long double;
+
+#define fastio                             \
+    std::ios_base::sync_with_stdio(false); \
+    std::cin.tie(NULL);                    \
+    std::cout.tie(NULL);
 
 class SegTreeMax {
 private:
@@ -129,3 +78,35 @@ public:
         return res;
     }
 };
+
+class Solution {
+public:
+    int minZeroArray(std::vector<int>& nums,
+                     std::vector<std::vector<int>>& queries) {
+        int n = nums.size();
+        SegTreeMax st;
+        st.init(n);
+        st.setLeaf(nums);
+        st.buildAll();
+
+        int cnt = 0;
+        for (auto& q : queries) {
+            if (st.query(0, n) <= 0) return cnt;
+            int l = q[0], r = q[1] + 1, k = -q[2];
+            st.increase(l, r, k);
+            cnt++;
+        }
+        return (st.query(0, n) <= 0) ? cnt : -1;
+    }
+};
+
+int main() {
+    Solution sol;
+    std::vector<int> nums = {2, 10, 8, 4, 1};
+    std::vector<std::vector<int>> queries = {
+        {0, 1, 2}, {3, 3, 1}, {1, 3, 1}, {0, 3, 5}, {2, 4, 3},
+        {0, 0, 5}, {0, 4, 3}, {0, 1, 2}, {2, 3, 4}, {1, 4, 1},
+        {0, 2, 1}, {1, 2, 2}, {1, 1, 3}, {1, 3, 5}, {0, 3, 5}};
+    std::cout << sol.minZeroArray(nums, queries) << std::endl;
+    return 0;
+}

@@ -1,7 +1,13 @@
 {
 	"name": "cpp_ps",
-	"dockerComposeFile": "docker-compose.yml",
-	"service": "app",
+	"build": {
+		"dockerfile": "Dockerfile",
+		"context": ".."
+	},
+	"init": true,
+	"runArgs": [
+		"--network=host"
+	],
 	"workspaceFolder": "/workspaces/${localWorkspaceFolderBasename}",
 	"customizations": {
 		"vscode": {
@@ -41,6 +47,5 @@
 				"visualstudioexptteam.vscodeintellicode"
 			]
 		}
-	},
-	"remoteUser": "root"
+	}
 }

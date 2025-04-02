@@ -29,24 +29,38 @@ Devcontainer를 쓰면서 도커를 처음 사용했는데, 문제가 생겼다.
 
 그래서 [devcontainer 설정 파일](./.devcontainer/devcontainer.json#L14) 에 관련 설정을 추가해서 C++23 기능을 제대로 인식할 수 있도록 해주었다.
 
+또또 문제가 생겼다. 이번엔 도커 볼륨 마운트 관련 문제다.
+
+기존에는 다음처럼 볼륨을 마운트했다.
+
+```compose
+    volumes:
+      - ../..:/workspaces:cached
+```
+
+근데 이러면 다른 도커 폴더들까지 싸그리 마운트가 되어버린다. 그래서 처음에는 [devcontainer 설정 파일](./.devcontainer/devcontainer.json#L5)처럼 환경 변수로 폴더 이름을 집어오게 했다. 물론 당연히 거기서 해결이 안 됐다 ^^.
+
+그래서 좀 더 찾아보니, 아예 initializeCommand 옵션으로 환경 변수를 새로 만들어주더라. 하지만 생각해보니 굳이 ps용 C++ 환경에서 docker compose 가 필요한가 하는 생각이 들었고, 결국 docker-compose.yml을 삭제했다. 메데타시 메데타시.
+
 ## CPP 입출력
 
 ```cpp
-#include <bits/stdc++.h>
+#include <iostream>
 
 using ll = long long int;
 using ull = unsigned long long int;
 using ld = long double;
 
+using std::cin, std::cout;
+
 #define fastio                             \
     std::ios_base::sync_with_stdio(false); \
-    std::cin.tie(NULL);                    \
-    std::cout.tie(NULL);
+    cin.tie(NULL);                         \
+    cout.tie(NULL);
 
-int main()
-{
+int main() {
     fastio;
-    std::cout << "Hello World!" << std::endl;
+    cout << "Hello World!" << endl;
     return 0;
 }
 ```

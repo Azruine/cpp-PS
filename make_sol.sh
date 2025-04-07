@@ -12,9 +12,7 @@ case "$PROBLEM_FOLDER" in
     1)
         echo "Setting target folder to baekjoon"
         TARGET_FOLDER="baekjoon"
-        if [[ "$PROBLEM_NAME" =~ ^[0-9]{4}$ ]]; then
-            PROBLEM_NAME=$(printf "%05d" "$PROBLEM_NAME")
-        fi
+        PROBLEM_NAME=$(printf "%05d" "$PROBLEM_NAME")
         ;;
     2)
         echo "Setting target folder to programmers"
@@ -23,12 +21,10 @@ case "$PROBLEM_FOLDER" in
     3)
         echo "Setting target folder to leetcode"
         TARGET_FOLDER="leetcode"
-        if [[ "$PROBLEM_NAME" =~ ^[0-9]{4}$ ]]; then
-            PROBLEM_NAME=$(printf "%05d" "$PROBLEM_NAME")
-        fi
+        PROBLEM_NAME=$(printf "%04d" "$PROBLEM_NAME")
         ;;
     *)
-        echo "Invalid problem_folder value. Use 1 for baekjoon or 2 for programmers."
+        echo "Invalid problem_folder value. Use 1 for baekjoon, 2 for programmers, or 3 for leetcode."
         exit 1
         ;;
 esac

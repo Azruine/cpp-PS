@@ -1,17 +1,11 @@
-/build
-
+build
 **/temp*.*
-
 **/test*.*
+temp*
+src/solved/baekjoon/not_opened
+.*
 
-.vscode/*
+!.gitignore
+!.vscode
 
-!.vscode/tasks.json
-
-!.vscode/launch.json
-
-!.vscode/cpp.code-snippets
-
-/temp*
-
-/src/solved/baekjoon/not_opened
+.vscode/settings.json

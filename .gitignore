@@ -9,3 +9,4 @@ src/solved/baekjoon/not_opened
 !.vscode
 
 .vscode/settings.json
+.vscode/cpp.code-snippets

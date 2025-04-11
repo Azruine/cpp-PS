@@ -4,6 +4,16 @@ project(mixed_project VERSION 0.1.0 LANGUAGES C CXX)
 set(CMAKE_C_STANDARD 11)
 set(CMAKE_CXX_STANDARD 23)
 
+add_compile_options(
+    -Wall
+    -Wextra
+    -Werror
+    -Wconversion
+    -Wpedantic
+    -Wshadow
+    -Wunused
+)
+
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 
 file(GLOB_RECURSE C_SOURCES "*.c")

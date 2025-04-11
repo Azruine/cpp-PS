@@ -1,6 +1,6 @@
 FROM debian:trixie-slim
 
-RUN apt update && apt install -y gcc gdb g++ cmake git
+RUN apt update && apt install -y gcc gdb g++ cmake git clangd cppcheck
 
 ARG USERNAME=azruine
 ARG USER_UID=1000

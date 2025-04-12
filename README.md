@@ -4,6 +4,10 @@
 
 DP랑 그리디, 그래프 풀어보기
 
+[힘주고 쓴거 1](./src/solved/baekjoon/01080.md)
+
+[힘주고 쓴거 2](./src/solved/baekjoon/02025.md)
+
 ## 세팅
   
 |**Software**|**Version**|
@@ -11,7 +15,7 @@ DP랑 그리디, 그래프 풀어보기
 |**OS**|**Debian 13 Trixie**|
 |**C++**|**C++23**|
 |**GCC**|**14.2.0**|
-|**CMAKE**|**3.31.3**|
+|**CMAKE**|**3.31.6**|
 
 src의 cpp 파일에 코드를 작성한 뒤 옵션을 선택하고 f5를 누르면 io/(코드파일명).input.txt 에 있는 내용을 stdin으로 입력받은 뒤, (코드파일명).output.txt에 stdout으로 출력한다.
 

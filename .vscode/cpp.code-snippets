@@ -1,7 +1,9 @@
 {
-    "Solver Class": {
+    "Solver Class For PS": {
         "prefix": "solverclass",
         "body": [
+            "/*==== Copyright 2025 Azruine ====*/",
+            "",
             "#include <iostream>",
             "",
             "using ll = int64_t;",
@@ -16,10 +18,15 @@
             "    cin.tie(nullptr);",
             "    cout.tie(nullptr);",
             "}",
+            "template <typename To, typename From>",
+            "constexpr To as(From from) {",
+            "    return static_cast<To>(from);",
+            "}",
             "}  // namespace",
             "",
             "class Solver {",
             "private:",
+            "",
             "public:",
             "    void solve() {}",
             "};",
@@ -29,9 +36,10 @@
             "    Solver solver;",
             "    solver.solve();",
             "    return 0;",
-            "}"
+            "}",
+            ""
         ],
-        "description": "Solver Class"
+        "description": "Solver Class For PS"
     },
     "leetcode": {
         "prefix": "leetcode",

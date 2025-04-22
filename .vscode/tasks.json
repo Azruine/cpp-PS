@@ -36,9 +36,9 @@
             "command": "gprof",
             "args": [
                 "${command:cmake.getLaunchTargetPath}",
-                "${workspaceFolder}/profile/gmon.out",
+                "${workspaceFolder}/gmon.out",
                 ">",
-                "${workspaceFolder}/profile/${command:cmake.getLaunchTargetFilename}.gprof.txt"
+                "${workspaceFolder}/${command:cmake.getLaunchTargetFilename}.gprof.txt"
             ],
             "options": {
                 "statusbar": {
@@ -49,7 +49,7 @@
         {
             "label": "gprof: clean gmon.out",
             "type": "shell",
-            "command": "rm ${workspaceFolder}/profile/gmon.out",
+            "command": "rm ${workspaceFolder}/gmon.out",
             "options": {
                 "statusbar": {
                     "hide": true

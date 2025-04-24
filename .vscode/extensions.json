@@ -20,6 +20,7 @@
         "usernamehw.errorlens",
         "visualstudioexptteam.intellicode-api-usage-examples",
         "visualstudioexptteam.vscodeintellicode",
-        "Azruine.vscode-cppcheck-forked"
+        "Azruine.vscode-cppcheck-forked",
+        "mine.cpplint"
     ]
 }

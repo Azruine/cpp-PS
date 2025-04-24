@@ -7,10 +7,6 @@
             "#include <iostream>",
             "#include <utility>",
             "",
-            "using ll = int64_t;",
-            "using ull = uint64_t;",
-            "using ld = long double;",
-            "",
             "using std::cin, std::cout;",
             "",
             "namespace {",
@@ -41,13 +37,26 @@
         ],
         "description": "Solver Class For PS"
     },
-    "leetcode": {
+    "Leet Code": {
         "prefix": "leetcode",
         "body": [
-            "class Solution",
-            "{",
+            "/*==== Copyright 2025 Azruine ====*/",
+            "",
+            "#include <utility>",
+            "",
+            "namespace {",
+            "template <typename To, typename From>",
+            "constexpr To as(From&& from) {",
+            "    return static_cast<To>(std::forward<From>(from));",
+            "}",
+            "}  // namespace",
+            "",
+            "class Solution {",
             "public:",
-            "};"
-        ]
+            "    ",
+            "};",
+            ""
+        ],
+        "description": "Leet Code"
     }
 }

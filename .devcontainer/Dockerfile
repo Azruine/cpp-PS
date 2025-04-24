@@ -1,6 +1,6 @@
 FROM debian:trixie-slim
 
-RUN apt update && apt install -y gcc gdb g++ cmake git clangd cppcheck
+RUN apt update && apt install -y gcc gdb g++ cmake git libc++-dev libc++abi-dev clangd cppcheck cpplint
 
 ARG USERNAME=azruine
 ARG USER_UID=1000
@@ -14,3 +14,6 @@ RUN groupadd --gid $USER_GID $USERNAME \
     && chmod 0440 /etc/sudoers.d/$USERNAME
 
 USER $USERNAME
+
+# RUN mkdir -p /home/$USERNAME/.config/clangd \
+#     && cp /workspaces/${localWorkspaceFolderBasename}/.clangd /home/$USERNAME/.config/clangd/config.yaml

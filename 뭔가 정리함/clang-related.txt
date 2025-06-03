@@ -1,0 +1,15 @@
+// clang-format off
+// clang format ignored
+// clang-format on
+
+badcode;  // NOLINT
+
+// NOLINTNEXTLINE
+badcode;
+
+// NOLINTBEGIN
+badcode;
+badcode;
+// NOLINTEND
+
+badcode; // NOLINT(cert-err-58-cpp)

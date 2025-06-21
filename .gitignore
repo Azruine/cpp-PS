@@ -4,7 +4,11 @@ build
 temp*
 src/solved/baekjoon/not_opened
 .*
+CMakeCache.txt
+CMakeFiles/
+*.cmake
 
+!template
 !.gitignore
 !.vscode
 

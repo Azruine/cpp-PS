@@ -27,6 +27,7 @@ endif()
 
 if(CXX_SOURCES)
     add_executable(temp src/temp.cpp)
+    add_executable(testcasegen src/testcasegen.cpp)
 endif()
 
 set(CPACK_PROJECT_NAME ${PROJECT_NAME})

@@ -23,6 +23,9 @@ public:
         }
         return root;
     }
+    auto find (auto x) {
+        return x != data[x] ? find(data[x]) : x;
+    }
     void merge(size_t x, size_t y) {
         x = find(x), y = find(y);
         if (x == y) {

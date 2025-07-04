@@ -23,7 +23,7 @@ public:
     void apply(size_t pos, int value) {
         data[pos] += value;
         if (pos < size) {
-            delay[pos] = value;
+            delay[pos] += value;
         }
     }
     void build(size_t pos) {

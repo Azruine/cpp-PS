@@ -4,7 +4,6 @@ project(mixed_project VERSION 0.1.0 LANGUAGES C CXX)
 set(CMAKE_C_STANDARD 11)
 set(CMAKE_CXX_STANDARD 23)
 
-# 빌드 타입별 컴파일 옵션 설정
 if(CMAKE_BUILD_TYPE STREQUAL "Release")
     message(STATUS "Applying release build options")
     add_compile_options(-O2 -Wall)
@@ -19,6 +18,7 @@ elseif(CMAKE_BUILD_TYPE STREQUAL "Debug")
         -Wshadow
         -Wunused
     )
+    set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=address")
 endif()
 
 option(C_FLAG_PROFILE "Enable profiling for C" OFF)

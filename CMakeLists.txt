@@ -18,7 +18,6 @@ elseif(CMAKE_BUILD_TYPE STREQUAL "Debug")
         -Wshadow
         -Wunused
     )
-    set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=address")
 endif()
 
 option(C_FLAG_PROFILE "Enable profiling for C" OFF)

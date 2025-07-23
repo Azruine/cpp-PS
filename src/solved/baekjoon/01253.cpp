@@ -1,13 +1,8 @@
 /*==== Copyright 2025 Azruine ====*/
 
-#include <algorithm>
-#include <cstdint>
 #include <iostream>
 #include <ranges>
-#include <unordered_map>
-#include <unordered_set>
 #include <utility>
-#include <vector>
 
 using std::cin, std::cout;
 
@@ -28,48 +23,17 @@ struct Rng {
         return std::views::iota(start, end) | std::views::stride(step);
     }
 };
-
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-variable"
 constexpr Rng rng{};
-template <std::ranges::contiguous_range R>
-    requires std::ranges::sized_range<R>
-std::istream& operator>>(std::istream& is, R& container) {
-    for (auto& elem : container) {
-        is >> elem;
-    }
-    return is;
-}
+#pragma GCC diagnostic pop
 }  // namespace
 
 class Solver {
 public:
-    void solve() {
-        cin >> n;
-        arr.resize(n);
-        cin >> arr;
-        for (auto& elem : arr) {
-            freq[elem]++;
-        }
-        std::ranges::sort(arr);
-        for (auto i : rng(0U, n)) {
-            for (auto j : rng(i + 1, n)) {
-                int32_t sum = arr[i] + arr[j];
-                auto threshold = 1UL + (arr[i] == sum) + (arr[j] == sum);
-                if (!freq.contains(sum) || freq[sum] < threshold) {
-                    continue;
-                }
-                unique_sum.insert(sum);
-            }
-        }
-        cout << std::ranges::fold_left(
-            unique_sum, 0UL,
-            [this](auto acc, int32_t sum) { return freq[sum] + acc; });
-    }
+    void solve() {}
 
 private:
-    size_t n = 0;
-    std::vector<int32_t> arr;
-    std::unordered_map<int32_t, size_t> freq;
-    std::unordered_set<int32_t> unique_sum;
 };
 
 int main() {

@@ -6,7 +6,7 @@ set(CMAKE_CXX_STANDARD 23)
 
 if(CMAKE_BUILD_TYPE STREQUAL "Release")
     message(STATUS "Applying release build options")
-    add_compile_options(-O2 -Wall)
+    add_compile_options(-O3 -Wall)
 elseif(CMAKE_BUILD_TYPE STREQUAL "Debug")
     message(STATUS "Applying debug build options")
     add_compile_options(
@@ -40,7 +40,7 @@ file(GLOB_RECURSE C_SOURCES "*.c")
 file(GLOB_RECURSE CXX_SOURCES "*.cpp")
 
 if(C_SOURCES)
-
+    add_executable(temp_c src/temp.c)
 endif()
 
 if(CXX_SOURCES)

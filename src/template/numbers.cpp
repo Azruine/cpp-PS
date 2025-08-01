@@ -5,7 +5,6 @@
 #include <cassert>
 #include <concepts>
 #include <cstdint>
-#include <functional>
 #include <iostream>
 #include <limits>
 #include <numeric>
@@ -44,7 +43,7 @@ struct Range {
 };
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wunused-variable"
-constexpr Range iota{};
+constexpr Range _iota{};
 #pragma GCC diagnostic pop
 }  // namespace
 
@@ -54,12 +53,12 @@ Done
 linear sieve
 prime test
 modular arithmetic
-
-Todo
 combinatorics
 factorization
 extended gcd
 chinese remainder theorem
+
+Todo
 number theoretic transform
 discrete logarithm
 Möbius function
@@ -78,12 +77,12 @@ using int128_t = __int128_t;
 using uint128_t = __uint128_t;
 namespace {
 /*========== Helper Functions ==========*/
-inline uint64_t mod_mul(uint64_t lhs, uint64_t rhs, uint64_t mod) {
-    return as<uint64_t>((as<uint128_t>(lhs) * rhs) % mod);
+inline int64_t mod_mul(int64_t lhs, int64_t rhs, int64_t mod) {
+    return as<int64_t>((as<int128_t>(lhs) * rhs) % mod);
 }
 
-uint64_t power(uint64_t base, uint64_t exp, uint64_t mod) {
-    uint64_t res = 1;
+int64_t power(int64_t base, int64_t exp, int64_t mod) {
+    int64_t res = 1;
     base %= mod;
     while (exp > 0) {
         if (exp % 2 == 1) {
@@ -97,12 +96,12 @@ uint64_t power(uint64_t base, uint64_t exp, uint64_t mod) {
 }  // namespace
 
 /*========== Extended Euclidian Algorithm ==========*/
-std::pair<int64_t, int64_t> extended_gcd(int64_t a, int64_t b) {
-    if (b == 0) {
+std::pair<int64_t, int64_t> extended_gcd(int64_t lhs, int64_t rhs) {
+    if (rhs == 0) {
         return {1, 0};
     }
-    auto [x1, y1] = extended_gcd(b, a % b);
-    return {y1, x1 - ((a / b) * y1)};
+    auto [x1, y1] = extended_gcd(rhs, lhs % rhs);
+    return {y1, x1 - ((lhs / rhs) * y1)};
 }
 
 /*========== Chinese Remainder Theorem ==========*/
@@ -164,11 +163,11 @@ class ModInt {
     constexpr static int64_t MOD = as<int64_t>(N);
     int64_t value;
 
-    constexpr static bool is_prime_mod = []() {
-        if (MOD == 2 || MOD == 3) {
+    constexpr static bool is_prime_mod = []() constexpr {
+        if constexpr (MOD == 2 || MOD == 3) {
             return true;
         }
-        if (MOD % 2 == 0 || MOD % 3 == 0) {
+        if constexpr (MOD % 2 == 0 || MOD % 3 == 0) {
             return false;
         }
         for (int64_t i = 5; i * i <= MOD; i += 6) {
@@ -179,15 +178,15 @@ class ModInt {
         return true;
     }();
 
-    constexpr static uint128_t BARRETT = (as<uint128_t>(1) << 64) / MOD;
+    constexpr static int128_t BARRETT = (as<int128_t>(1) << 64) / MOD;
 
-    constexpr static uint64_t reduce(uint128_t x) noexcept {
+    constexpr static int64_t reduce(int128_t x) noexcept {
         if constexpr ((MOD & (MOD - 1)) != 0) {
-            uint128_t quotient = (x * BARRETT) >> 64;
-            auto remainder = as<uint64_t>(x - (quotient * MOD));
+            int128_t quotient = (x * BARRETT) >> 64;
+            auto remainder = as<int64_t>(x - (quotient * MOD));
             return remainder < MOD ? remainder : remainder - MOD;
         } else {
-            return as<uint64_t>(x & (MOD - 1));
+            return as<int64_t>(x & (MOD - 1));
         }
     }
 
@@ -238,7 +237,7 @@ public:
         return *this;
     }
     constexpr ModInt& operator*=(ModInt const& rhs) noexcept {
-        uint128_t prod = as<uint128_t>(value) * as<uint64_t>(rhs.value);
+        int128_t prod = as<int128_t>(value) * as<int128_t>(rhs.value);
         value = as<int64_t>(reduce(prod));
         return *this;
     }
@@ -384,7 +383,7 @@ public:
 
 namespace MillarRabin {
 /*========== Millar Rabin ==========*/
-bool is_prime(uint64_t n) {
+bool is_prime(int64_t n) {
     if (n < 2) {
         return false;
     }
@@ -395,19 +394,19 @@ bool is_prime(uint64_t n) {
         return false;
     }
 
-    static constexpr std::array<uint64_t, 12> bases = {2,  3,  5,  7,  11, 13,
-                                                       17, 19, 23, 29, 31, 37};
-    uint64_t odd = n - 1;
+    static constexpr std::array<int64_t, 12> bases = {2,  3,  5,  7,  11, 13,
+                                                      17, 19, 23, 29, 31, 37};
+    int64_t odd = n - 1;
     while (odd % 2 == 0) {
         odd /= 2;
     }
 
-    for (uint64_t base : bases) {
+    for (int64_t base : bases) {
         if (n == base) {
             return true;
         }
-        uint64_t temp = power(base, odd, n);
-        uint64_t res = odd;
+        int64_t temp = power(base, odd, n);
+        int64_t res = odd;
         while (temp != 1 && temp != n - 1 && res != n - 1) {
             temp = mod_mul(temp, temp, n);
             res *= 2;
@@ -421,13 +420,13 @@ bool is_prime(uint64_t n) {
 }  // namespace MillarRabin
 
 namespace PollardRho {
-uint64_t convert(uint64_t x, uint64_t n) {
-    constexpr static uint64_t constant = 5;
+int64_t convert(int64_t x, int64_t n) {
+    constexpr static int64_t constant = 5;
     return mod_mul(x, x, n) + constant;
 }
 
-std::pair<uint64_t, uint64_t> pollard_rho(
-    uint64_t n, std::unordered_map<uint64_t, int>& factors_set) {
+std::pair<int64_t, int64_t> pollard_rho(
+    int64_t n, std::unordered_map<int64_t, int>& factors_set) {
     if (n == 1) {
         return {1, 1};
     }
@@ -436,7 +435,7 @@ std::pair<uint64_t, uint64_t> pollard_rho(
         return {n, 1};
     }
 
-    uint64_t x = 0, y = 0, temp = 30, prd = 2, i = 1, q = 0;
+    int64_t x = 0, y = 0, temp = 30, prd = 2, i = 1, q = 0;
     while (temp++ % 40 || std::gcd(prd, n) == 1) {
         if (x == y) {
             x = ++i, y = convert(x, n);
@@ -447,14 +446,14 @@ std::pair<uint64_t, uint64_t> pollard_rho(
         x = convert(x, n), y = convert(convert(y, n), n);
     }
 
-    uint64_t div = std::gcd(prd, n);
+    int64_t div = std::gcd(prd, n);
     if (div == n) {
         return {1, 1};
     }
     return {div, n / div};
 }
-auto factorize(uint64_t n) {
-    std::unordered_map<uint64_t, int> factors_set;
+auto factorize(int64_t n) {
+    std::unordered_map<int64_t, int> factors_set;
     if (n == 1) {
         return factors_set;
     }
@@ -471,15 +470,15 @@ auto factorize(uint64_t n) {
         factors_set[3]++;
         n /= 3;
     }
-    std::vector<uint64_t> stack;
+    std::vector<int64_t> stack;
     stack.push_back(n);
     while (!stack.empty()) {
-        uint64_t cur = stack.back();
+        int64_t cur = stack.back();
         stack.pop_back();
-        auto [dividend, quotient] = pollard_rho(cur, factors_set);
-        if (dividend == 1 && quotient == 1) {
+        if (cur == 1) {
             continue;
         }
+        auto [dividend, quotient] = pollard_rho(cur, factors_set);
         if (dividend != 1) {
             stack.push_back(quotient);
         }
@@ -490,9 +489,9 @@ auto factorize(uint64_t n) {
     return factors_set;
 }
 
-auto factorize_ordered(uint64_t n) {
-    std::unordered_map<uint64_t, int> factors_set = factorize(n);
-    std::vector<std::pair<uint64_t, int>> ordered_factors;
+auto factorize_ordered(int64_t n) {
+    std::unordered_map<int64_t, int> factors_set = factorize(n);
+    std::vector<std::pair<int64_t, int>> ordered_factors;
     ordered_factors.reserve(factors_set.size());
     for (const auto& [factor, count] : factors_set) {
         ordered_factors.emplace_back(factor, count);
@@ -503,192 +502,188 @@ auto factorize_ordered(uint64_t n) {
 }  // namespace PollardRho
 
 namespace Combinatorics {
-template <auto MOD>
-struct Combination {
-    static_assert(MOD > 1, "MOD must be >1");
-    static constexpr bool is_prime_mod = ::Numbers::ModInt<MOD>::is_prime_mod;
+template <std::integral auto const MOD = 0>
+class Combination {
+    static_assert(MOD >= 0, "MOD must be non-negative");
+
     using mint = ::Numbers::ModInt<MOD>;
-
     std::vector<mint> fact, inv_fact;
-    explicit Combination(size_t n) : fact(n + 1), inv_fact(n + 1) {
-        fact[0] = 1;
-        for (size_t i = 1; i <= n; ++i) fact[i] = fact[i - 1] * mint(i);
-        inv_fact[n] = fact[n].inv();
-        for (size_t i = n; i > 0; --i) inv_fact[i - 1] = inv_fact[i] * mint(i);
-    }
 
-    mint comb_prime(size_t n, size_t k) const {
-        if (k > n) return 0;
-        return fact[n] * inv_fact[k] * inv_fact[n - k];
-    }
-
-    int64_t comb_composite(size_t n, size_t k) const {
-        return comb_mod_composite(n, k, MOD);
-    }
-};
-
-inline int128_t comb_raw(int n, int k) {
-    if (k < 0 || k > n) {
-        return 0;
-    }
-    k = std::min(k, n - k);
-    int128_t res = 1;
-    for (int i = 1; i <= k; ++i) {
-        res = res * (n - k + i) / i;
-    }
-    return res;
-}
-
-inline int64_t comb_mod_prime_power(int64_t n, int64_t k, int64_t p,
-                                    int64_t e) {
-    int64_t pe = 1;
-    for (int i = 0; i < e; ++i) {
-        pe *= p;
-    }
-
-    auto fact_mod = [&](auto self, int64_t x) -> int64_t {
-        if (x == 0) {
-            return 1;
+    constexpr static bool is_prime_mod = []() constexpr {
+        if constexpr (MOD == 2 || MOD == 3) {
+            return true;
         }
-        int64_t res = 1;
-        for (int64_t i = 1; i < pe; ++i) {
-            if (i % p) {
-                res = res * i % pe;
+        if constexpr (MOD % 2 == 0 || MOD % 3 == 0) {
+            return false;
+        }
+        for (int64_t i = 5; i * i <= MOD; i += 6) {
+            if (MOD % i == 0 || MOD % (i + 2) == 0) {
+                return false;
             }
         }
-        auto r = as<int64_t>(
-            power(as<uint64_t>(res), as<uint64_t>(x / pe), as<uint64_t>(pe)));
-        for (int64_t i = 1; i <= x % pe; ++i) {
-            if (i % p) {
-                r = r * i % pe;
+        return true;
+    }();
+
+    static int128_t nCr_raw(int64_t n, int64_t k) {
+        if (k < 0 || k > n) {
+            return 0;
+        }
+        k = std::min(k, n - k);
+        int128_t res = 1;
+        for (int i = 1; i <= k; ++i) {
+            res = res * (n - k + i) / i;
+        }
+        return res;
+    }
+
+    mint nCr_small(int64_t n, int64_t k) const {
+        if (k < 0 || k > n) {
+            return mint(0);
+        }
+        if (!fact.empty() && as<size_t>(n) < fact.size()) {
+            return fact[as<size_t>(n)] * inv_fact[as<size_t>(k)] *
+                   inv_fact[as<size_t>(n - k)];
+        }
+        if (k > n / 2) {
+            k = n - k;
+        }
+        mint res(1);
+        for (int64_t i = 1; i <= k; ++i) {
+            res = res * (n - i + 1) / i;
+        }
+        return res;
+    }
+
+    mint nCr_lucas(int64_t n, int64_t k) const {
+        if (k < 0 || k > n) {
+            return mint(0);
+        }
+        if (k == 0) {
+            return mint(1);
+        }
+        return nCr_lucas(n / MOD, k / MOD) * nCr_small(n % MOD, k % MOD);
+    }
+
+    static int64_t nCr_prime_power(int64_t n, int64_t k, int64_t prime,
+                                   int64_t exponent) {
+        int64_t mod_pe = 1;
+        for (int i = 0; i < exponent; ++i) {
+            mod_pe *= prime;
+        }
+
+        auto count_p = [&](int64_t num) {
+            int64_t count = 0;
+            while (num > 0) {
+                num /= prime;
+                count += num;
             }
+            return count;
+        };
+
+        if (count_p(n) - count_p(k) - count_p(n - k) >= exponent) {
+            return 0;
         }
-        return r * self(self, x / p) % pe;
-    };
 
-    auto vp = [&](int64_t x) {
-        int64_t cnt = 0;
-        while (x) {
-            x /= p;
-            cnt += x;
-        }
-        return cnt;
-    };
-    if (k < 0 || k > n) {
-        return 0;
-    }
-
-    int64_t exp = vp(n) - vp(k) - vp(n - k);
-    int64_t a = fact_mod(fact_mod, n);
-    int64_t b = fact_mod(fact_mod, k) * fact_mod(fact_mod, n - k) % pe;
-
-    auto [u, _] = extended_gcd(b, pe);
-    int64_t invb = (u % pe + pe) % pe;
-    int64_t res = a * invb % pe;
-    for (int64_t i = 0; i < exp; ++i) {
-        res = res * p % pe;
-    }
-
-    return res;
-}
-
-inline int64_t comb_mod_composite(int64_t n, int64_t k, int64_t mod) {
-    auto facs = ::Numbers::PollardRho::factorize_ordered(as<uint64_t>(mod));
-    std::vector<int64_t> rems, mods;
-    for (auto [p, e] : facs) {
-        rems.push_back(comb_mod_prime_power(n, k, as<int64_t>(p), e));
-        int64_t pe = 1;
-        for (int i = 0; i < e; ++i) {
-            pe *= p;
-        }
-        mods.push_back(pe);
-    }
-    return crt(rems, mods);
-}
-
-inline int64_t comb(int64_t n, int64_t k, int64_t p) {
-    if (k < 0 || k > n) {
-        return 0;
-    }
-    if (::Numbers::MillarRabin::is_prime(as<uint64_t>(p))) {
-        static std::vector<int64_t> fact, invf;
-        if (fact.size() != as<size_t>(p)) {
-            fact.assign(as<size_t>(p), 1);
-            for (auto i = 1; i < p; ++i) {
-                fact[as<size_t>(i)] = fact[as<size_t>(i - 1)] * i % p;
+        auto fact_mod = [&](auto self, int64_t num) -> int64_t {
+            if (num == 0) {
+                return 1;
             }
-            invf.resize(as<size_t>(p));
-            invf[as<size_t>(p - 1)] = [](int64_t a, int64_t m) {
-                int64_t r = 1, e = m - 2;
-                while (e) {
-                    if (e & 1) {
-                        r = r * a % m;
-                    }
-                    a = a * a % m;
-                    e >>= 1;
+            int64_t res = 1;
+            for (int64_t i = 1; i < mod_pe; ++i) {
+                if (i % prime) {
+                    res = mod_mul(res, i, mod_pe);
                 }
-                return r;
-            }(fact[as<size_t>(p - 1)], p);
-            for (auto i = p - 1; i > 0; --i) {
-                invf[as<size_t>(i - 1)] = invf[as<size_t>(i)] * i % p;
             }
-        }
-        auto Csmall = [&](int ni, int ki) {
-            return fact[as<size_t>(ni)] * invf[as<size_t>(ki)] % p *
-                   invf[as<size_t>(ni - ki)] % p;
+            res = power(res, num / mod_pe, mod_pe);
+            for (int64_t i = 1; i <= num % mod_pe; ++i) {
+                if (i % prime) {
+                    res = mod_mul(res, i, mod_pe);
+                }
+            }
+            return mod_mul(res, self(self, num / prime), mod_pe);
         };
-        std::function<int64_t(int64_t, int64_t)> lucas = [&](int64_t N,
-                                                             int64_t K) {
-            if (K == 0) {
-                return int64_t{1};
-            }
-            int64_t ni = N % p, ki = K % p;
-            if (ki > ni) {
-                return int64_t{0};
-            }
-            return lucas(N / p, K / p) * Csmall(as<int>(ni), as<int>(ki)) % p;
-        };
-        return lucas(n, k);
-    }
-    return comb_mod_composite(n, k, p);
-}
 
-template <int64_t MOD = 0>
-auto comb(int n, int k, int64_t mod_arg = MOD)
-    -> std::conditional_t<MOD == 0, int128_t, int64_t> {
-    if constexpr (MOD != 0) {
-        static Combination<MOD> Comb(/* max_n */ 1000000);
-        if constexpr (::Numbers::ModInt<MOD>::is_prime_mod) {
-            return Comb.comb_prime(n, k).value;
-        } else {
-            return Comb.comb_composite(n, k);
+        int64_t num_val = fact_mod(fact_mod, n);
+        int64_t den1_val = fact_mod(fact_mod, k);
+        int64_t den2_val = fact_mod(fact_mod, n - k);
+
+        int64_t p_exp = count_p(n) - count_p(k) - count_p(n - k);
+
+        int64_t phi = 1;
+        for (int i = 0; i < exponent - 1; ++i) {
+            phi *= prime;
         }
-    } else {
-        return (mod_arg == 0) ? comb_raw(n, k)
-                              : comb_mod_composite(n, k, mod_arg);
+        phi *= (prime - 1);
+
+        int64_t den_inv =
+            power(mod_mul(den1_val, den2_val, mod_pe), phi - 1, mod_pe);
+
+        int64_t res = mod_mul(num_val, den_inv, mod_pe);
+        res = mod_mul(res, power(prime, p_exp, mod_pe), mod_pe);
+        return res;
     }
-}
 
-}  // namespace Combinatorics
-}  // namespace Numbers
-
-class Solver {
-    int64_t n = 0, k = 0, t = 0;
-    constexpr static int64_t MOD = 142857;
+    static int64_t nCr_composite(int64_t n, int64_t k, int64_t m) {
+        if (k < 0 || k > n) {
+            return 0;
+        }
+        auto factors = PollardRho::factorize_ordered(m);
+        std::vector<int64_t> rems;
+        std::vector<int64_t> mods;
+        for (auto [p, e] : factors) {
+            int64_t mod_pe = 1;
+            for (int i = 0; i < e; ++i) {
+                mod_pe *= p;
+            }
+            rems.push_back(nCr_prime_power(n, k, p, e));
+            mods.push_back(mod_pe);
+        }
+        return crt(rems, mods);
+    }
 
 public:
-    void solve() {
-        cin >> t;
-        while (t--) {
-            cin >> n >> k;
-            cout << Numbers::Combinatorics::comb(n, k, MOD) << '\n';
+    explicit Combination(size_t max_n = 0) {
+        if constexpr (is_prime_mod) {
+            if (max_n == 0) {
+                return;
+            }
+            fact.resize(max_n + 1);
+            inv_fact.resize(max_n + 1);
+            fact[0] = mint(1);
+            for (size_t i = 1; i <= max_n; ++i) {
+                fact[i] = fact[i - 1] * mint(i);
+            }
+            inv_fact[max_n] = fact[max_n].inv();
+            for (size_t i = max_n; i > 0; --i) {
+                inv_fact[i - 1] = inv_fact[i] * mint(i);
+            }
         }
     }
-};
 
-int main() {
-    fastio();
-    Solver solver;
-    solver.solve();
-    return 0;
-}
+    auto nCr(int64_t n, int64_t k) const {
+        if constexpr (MOD == 0) {
+            return nCr_raw(n, k);
+        } else {
+            if (k < 0 || k > n) {
+                return mint(0);
+            }
+
+            if (!fact.empty() && as<size_t>(n) < fact.size()) {
+                return fact[as<size_t>(n)] * inv_fact[as<size_t>(k)] *
+                       inv_fact[as<size_t>(n - k)];
+            }
+
+            if constexpr (is_prime_mod) {
+                return nCr_lucas(n, k);
+            } else {
+                return mint(nCr_composite(n, k, MOD));
+            }
+        }
+    }
+
+    static int64_t nCr(int64_t n, int64_t k, int64_t m) {
+        return nCr_composite(n, k, m);
+    }
+};
+}  // namespace Combinatorics
+}  // namespace Numbers

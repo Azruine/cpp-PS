@@ -11,33 +11,26 @@ using ld = long double;
 
 using point = std::pair<int, int>;
 std::array<point, 4> direction = {{{1, 0}, {-1, 0}, {0, 1}, {0, -1}}};
-enum STATE
-{
-    H,
-    V
-};
-point operator+(point &p1, point &p2)
-{
+enum STATE { H, V };
+point operator+(point &p1, point &p2) {
     return {p1.first + p2.first, p1.second + p2.second};
 }
 
-class Solver
-{
+class Solver {
 private:
     int n;
     std::vector<std::vector<char>> map;
-    bool isValidH(point p)
-    {
+    bool isValidH(point p) {
         int r = p.first, c = p.second;
-        return (r < n && r >= 0) && (c < n - 1 && c >= 1) && map[r][c + 1] != '1' && map[r][c - 1] != '1' && map[r][c] != '1';
+        return (r < n && r >= 0) && (c < n - 1 && c >= 1) &&
+               map[r][c + 1] != '1' && map[r][c - 1] != '1' && map[r][c] != '1';
     }
-    bool isValidV(point p)
-    {
+    bool isValidV(point p) {
         int r = p.first, c = p.second;
-        return (r < n - 1 && r >= 1) && (c < n && c >= 0) && map[r + 1][c] != '1' && map[r - 1][c] != '1' && map[r][c] != '1';
+        return (r < n - 1 && r >= 1) && (c < n && c >= 0) &&
+               map[r + 1][c] != '1' && map[r - 1][c] != '1' && map[r][c] != '1';
     }
-    bool canRotate(point p)
-    {
+    bool canRotate(point p) {
         int r = p.first, c = p.second;
         return (r < n - 1 && r >= 1) && (c < n - 1 && c >= 1) &&
                map[r][c + 1] != '1' && map[r][c - 1] != '1' &&
@@ -51,15 +44,12 @@ private:
 public:
     Solver() {}
     ~Solver() {}
-    void solve()
-    {
+    void solve() {
         std::cin >> n;
         map.assign(n, std::vector<char>(n));
         std::vector<point> startVec, endVec;
-        for (int i = 0; i < n; i++)
-        {
-            for (int j = 0; j < n; j++)
-            {
+        for (int i = 0; i < n; i++) {
+            for (int j = 0; j < n; j++) {
                 std::cin >> map[i][j];
                 if (map[i][j] == 'B')
                     startVec.push_back({i, j});
@@ -78,24 +68,23 @@ public:
         else
             endState = V;
         std::queue<std::tuple<point, STATE, int>> q;
-        std::vector<std::vector<std::array<int, 2>>> dist(n, std::vector<std::array<int, 2>>(n, {{-1, -1}}));
+        std::vector<std::vector<std::array<int, 2>>> dist(
+            n, std::vector<std::array<int, 2>>(n, {{-1, -1}}));
         q.push({start, startState, 0});
         dist[start.first][start.second][startState] = 0;
-        while (!q.empty())
-        {
+        while (!q.empty()) {
             auto [curPoint, curState, curDist] = q.front();
             q.pop();
             // moving
-            for (auto dir : direction)
-            {
+            for (auto dir : direction) {
                 auto nextPoint = curPoint + dir;
                 auto nextState = curState;
                 auto nextDist = curDist + 1;
                 if ((this->*valid[nextState])(nextPoint) &&
-                    dist[nextPoint.first][nextPoint.second][nextState] == -1)
-                {
+                    dist[nextPoint.first][nextPoint.second][nextState] == -1) {
                     q.push({nextPoint, nextState, nextDist});
-                    dist[nextPoint.first][nextPoint.second][nextState] = nextDist;
+                    dist[nextPoint.first][nextPoint.second][nextState] =
+                        nextDist;
                 }
             }
             // rotating
@@ -104,10 +93,10 @@ public:
                 auto nextState = curState == H ? V : H;
                 auto nextDist = curDist + 1;
                 if (canRotate(nextPoint) &&
-                    dist[nextPoint.first][nextPoint.second][nextState] == -1)
-                {
+                    dist[nextPoint.first][nextPoint.second][nextState] == -1) {
                     q.push({nextPoint, nextState, nextDist});
-                    dist[nextPoint.first][nextPoint.second][nextState] = nextDist;
+                    dist[nextPoint.first][nextPoint.second][nextState] =
+                        nextDist;
                 }
             }
         }
@@ -115,8 +104,7 @@ public:
     }
 };
 
-int main()
-{
+int main() {
     고속입출력;
     Solver solver;
     solver.solve();

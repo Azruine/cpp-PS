@@ -40,7 +40,7 @@ file(GLOB_RECURSE C_SOURCES "*.c")
 file(GLOB_RECURSE CXX_SOURCES "*.cpp")
 
 if(C_SOURCES)
-    
+    add_executable(tempc src/temp.c)
 endif()
 
 if(CXX_SOURCES)

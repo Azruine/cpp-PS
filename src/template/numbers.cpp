@@ -8,44 +8,9 @@
 #include <iostream>
 #include <limits>
 #include <numeric>
-#include <ranges>
-#include <type_traits>
 #include <unordered_map>
 #include <utility>
 #include <vector>
-
-using std::cin, std::cout;
-
-namespace {
-inline void fastio() {
-    std::ios_base::sync_with_stdio(false);
-    cin.tie(nullptr);
-    cout.tie(nullptr);
-}
-template <typename To, typename From>
-constexpr To as(From&& from) {
-    return static_cast<To>(std::forward<From>(from));
-}
-struct Range {
-    template <typename Sentinel>
-    constexpr auto operator()(Sentinel sentinel) const noexcept {
-        return std::views::iota(static_cast<Sentinel>(0), sentinel);
-    }
-    template <typename Start, typename Sentinel>
-    constexpr auto operator()(Start start, Sentinel sentinel) const noexcept {
-        return std::views::iota(start, sentinel);
-    }
-    template <typename Start, typename Sentinel, typename Step>
-    constexpr auto operator()(Start start, Sentinel sentinel,
-                              Step step) const noexcept {
-        return std::views::iota(start, sentinel) | std::views::stride(step);
-    }
-};
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wunused-variable"
-constexpr Range _iota{};
-#pragma GCC diagnostic pop
-}  // namespace
 
 namespace Numbers {
 /*
@@ -78,7 +43,7 @@ using uint128_t = __uint128_t;
 namespace {
 /*========== Helper Functions ==========*/
 inline int64_t mod_mul(int64_t lhs, int64_t rhs, int64_t mod) {
-    return as<int64_t>((as<int128_t>(lhs) * rhs) % mod);
+    return static_cast<int64_t>((static_cast<int128_t>(lhs) * rhs) % mod);
 }
 
 int64_t power(int64_t base, int64_t exp, int64_t mod) {
@@ -160,7 +125,7 @@ template <std::integral auto const N>
 class ModInt {
     static_assert(N <= std::numeric_limits<int64_t>::max(),
                   "N is too large for ModInt");
-    constexpr static int64_t MOD = as<int64_t>(N);
+    constexpr static int64_t MOD = static_cast<int64_t>(N);
     int64_t value;
 
     constexpr static bool is_prime_mod = []() constexpr {
@@ -178,15 +143,15 @@ class ModInt {
         return true;
     }();
 
-    constexpr static int128_t BARRETT = (as<int128_t>(1) << 64) / MOD;
+    constexpr static int128_t BARRETT = (static_cast<int128_t>(1) << 64) / MOD;
 
     constexpr static int64_t reduce(int128_t x) noexcept {
         if constexpr ((MOD & (MOD - 1)) != 0) {
             int128_t quotient = (x * BARRETT) >> 64;
-            auto remainder = as<int64_t>(x - (quotient * MOD));
+            auto remainder = static_cast<int64_t>(x - (quotient * MOD));
             return remainder < MOD ? remainder : remainder - MOD;
         } else {
-            return as<int64_t>(x & (MOD - 1));
+            return static_cast<int64_t>(x & (MOD - 1));
         }
     }
 
@@ -197,13 +162,13 @@ public:
     template <typename U>
         requires std::is_integral_v<U>
     explicit constexpr ModInt(U val) noexcept {
-        auto temp_val = as<int128_t>(val);
+        auto temp_val = static_cast<int128_t>(val);
         if (temp_val < 0) {
             temp_val = (temp_val % MOD + MOD) % MOD;
         } else {
             temp_val %= MOD;
         }
-        value = as<int64_t>(temp_val);
+        value = static_cast<int64_t>(temp_val);
     }
     constexpr ModInt(ModInt const&) = default;
     constexpr ModInt& operator=(ModInt const&) = default;
@@ -237,8 +202,9 @@ public:
         return *this;
     }
     constexpr ModInt& operator*=(ModInt const& rhs) noexcept {
-        int128_t prod = as<int128_t>(value) * as<int128_t>(rhs.value);
-        value = as<int64_t>(reduce(prod));
+        int128_t prod =
+            static_cast<int128_t>(value) * static_cast<int128_t>(rhs.value);
+        value = reduce(prod);
         return *this;
     }
     constexpr ModInt& operator/=(ModInt const& rhs) {
@@ -540,9 +506,10 @@ class Combination {
         if (k < 0 || k > n) {
             return mint(0);
         }
-        if (!fact.empty() && as<size_t>(n) < fact.size()) {
-            return fact[as<size_t>(n)] * inv_fact[as<size_t>(k)] *
-                   inv_fact[as<size_t>(n - k)];
+        if (!fact.empty() && static_cast<size_t>(n) < fact.size()) {
+            return fact[static_cast<size_t>(n)] *
+                   inv_fact[static_cast<size_t>(k)] *
+                   inv_fact[static_cast<size_t>(n - k)];
         }
         if (k > n / 2) {
             k = n - k;
@@ -668,9 +635,10 @@ public:
                 return mint(0);
             }
 
-            if (!fact.empty() && as<size_t>(n) < fact.size()) {
-                return fact[as<size_t>(n)] * inv_fact[as<size_t>(k)] *
-                       inv_fact[as<size_t>(n - k)];
+            if (!fact.empty() && static_cast<size_t>(n) < fact.size()) {
+                return fact[static_cast<size_t>(n)] *
+                       inv_fact[static_cast<size_t>(k)] *
+                       inv_fact[static_cast<size_t>(n - k)];
             }
 
             if constexpr (is_prime_mod) {

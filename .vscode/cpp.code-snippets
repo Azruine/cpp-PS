@@ -114,7 +114,7 @@
             "            if (diff % (-step_) != 0) {",
             "                steps++;",
             "            }",
-            "            end_ = start_ - steps * (-step_);",
+            "            end_ = start_ - (steps * (-step_));",
             "        } else if (step_ > 0 && start_ > end_) {",
             "            start_ = end_;",
             "        }",

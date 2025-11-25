@@ -127,180 +127,16 @@ std::vector<T> self_multiply(std::vector<T> const& vec) {
 }
 };  // namespace fft
 
-namespace ntt {
-template <typename T>
-T power(T base, T exp, T mod) {
-    T result = 1;
-    base %= mod;
-    while (exp > 0) {
-        if (exp & 1) {
-            result = (result * base) % mod;
-        }
-        base = (base * base) % mod;
-        exp >>= 1;
-    }
-    return result;
-}
-
-template <typename T>
-T find_primitive_root(T mod) {
-    if (mod == 998244353 || mod == 469762049 || mod == 167772161) {
-        return 3;
-    }
-    std::vector<T> factors;
-    T phi = mod - 1;
-    T n = phi;
-    for (T i = 2; i * i <= n; i++) {
-        if (n % i == 0) {
-            factors.push_back(i);
-            while (n % i == 0) {
-                n /= i;
-            }
-        }
-    }
-    if (n > 1) {
-        factors.push_back(n);
-    }
-
-    for (T i = 2; i < mod; i++) {
-        bool is_primitive = true;
-        for (T factor : factors) {
-            if (power(i, phi / factor, mod) == 1) {
-                is_primitive = false;
-                break;
-            }
-        }
-        if (is_primitive) {
-            return i;
-        }
-    }
-    return -1;
-}
-
-template <typename T>
-void ntt(std::vector<T>& data, T mod, bool invert = false) {
-    size_t n = data.size();
-    if (n == 1) {
-        return;
-    }
-
-    for (size_t i = 0, j = 0; i < n; i++) {
-        if (i < j) {
-            std::swap(data[i], data[j]);
-        }
-        size_t bit = n >> 1;
-        while (j & bit) {
-            j ^= bit;
-            bit >>= 1;
-        }
-        j ^= bit;
-    }
-
-    T root = find_primitive_root(mod);
-
-    for (size_t len = 2; len <= n; len <<= 1) {
-        T w = invert ? power(root, mod - 1 - ((mod - 1) / len), mod)
-                     : power(root, (mod - 1) / len, mod);
-
-        for (size_t i = 0; i < n; i += len) {
-            T wn = 1;
-            for (size_t j = 0; j < len / 2; j++) {
-                T even = data[i + j];
-                T odd = (data[i + j + (len / 2)] * wn) % mod;
-
-                data[i + j] = (even + odd) % mod;
-                data[i + j + (len / 2)] = (even - odd + mod) % mod;
-
-                wn = (wn * w) % mod;
-            }
-        }
-    }
-
-    if (invert) {
-        T n_inv = power(static_cast<T>(n), mod - 2, mod);
-        for (size_t i = 0; i < n; i++) {
-            data[i] = (data[i] * n_inv) % mod;
-        }
-    }
-}
-
-template <typename T>
-    requires std::is_integral_v<T>
-std::vector<T> multiply(std::vector<T> const& lhs, std::vector<T> const& rhs,
-                        T mod) {
-    size_t result_size = lhs.size() + rhs.size() - 1;
-    size_t n = 2;
-    while (n < result_size) {
-        n <<= 1;
-    }
-
-    std::vector<T> lhs_ntt(n), rhs_ntt(n);
-
-    for (size_t i = 0; i < lhs.size(); i++) {
-        lhs_ntt[i] = lhs[i] % mod;
-    }
-    for (size_t i = 0; i < rhs.size(); i++) {
-        rhs_ntt[i] = rhs[i] % mod;
-    }
-
-    ntt(lhs_ntt, mod);
-    ntt(rhs_ntt, mod);
-
-    for (size_t i = 0; i < n; i++) {
-        lhs_ntt[i] = (lhs_ntt[i] * rhs_ntt[i]) % mod;
-    }
-
-    ntt(lhs_ntt, mod, true);
-
-    std::vector<T> result(result_size);
-    for (size_t i = 0; i < result_size; i++) {
-        result[i] = lhs_ntt[i];
-    }
-    return result;
-}
-
-template <typename T>
-    requires std::is_integral_v<T>
-std::vector<T> self_multiply(std::vector<T> const& vec, T mod) {
-    size_t result_size = (2 * vec.size()) - 1;
-    size_t n = 2;
-    while (n < result_size) {
-        n <<= 1;
-    }
-
-    std::vector<T> ntt_data(n);
-    for (size_t i = 0; i < vec.size(); i++) {
-        ntt_data[i] = vec[i] % mod;
-    }
-
-    ntt(ntt_data, mod);
-
-    for (size_t i = 0; i < n; i++) {
-        ntt_data[i] = (ntt_data[i] * ntt_data[i]) % mod;
-    }
-
-    ntt(ntt_data, mod, true);
-
-    std::vector<T> result(result_size);
-    for (size_t i = 0; i < result_size; i++) {
-        result[i] = ntt_data[i];
-    }
-    return result;
-}
-};  // namespace ntt
-
 namespace ntt_optimized {
 template <typename T>
 struct Barrett {
     T mod;
     __uint128_t m;
 
-    explicit Barrett(T mod_)
-        : mod(mod_), m((static_cast<__uint128_t>(-1)) / mod) {}
-
-    T reduce(T x) const {
-        T quotient = static_cast<T>((static_cast<__uint128_t>(m) * x) >> 64);
-        T residue = x - (quotient * mod);
+    explicit Barrett(T mod_) : mod(mod_), m((static_cast<__uint128_t>(1) << 64) / mod) {}
+    T reduce(__uint128_t x) const {
+        T quotient = static_cast<T>((m * x) >> 64);
+        T residue = static_cast<T>(x - (static_cast<__uint128_t>(quotient) * mod));
         return residue >= mod ? residue - mod : residue;
     }
 };
@@ -381,8 +217,10 @@ public:
 
             roots[i][0] = inv_roots[i][0] = 1;
             for (size_t j = 1; j < len; j++) {
-                roots[i][j] = barrett.reduce(roots[i][j - 1] * w);
-                inv_roots[i][j] = barrett.reduce(inv_roots[i][j - 1] * w_inv);
+                roots[i][j] =
+                    barrett.reduce(static_cast<__uint128_t>(roots[i][j - 1] * w));
+                inv_roots[i][j] = barrett.reduce(
+                    static_cast<__uint128_t>(inv_roots[i][j - 1] * w_inv));
             }
         }
     }
@@ -411,7 +249,8 @@ public:
             for (size_t i = 0; i < n; i += 2 * sz) {
                 for (size_t j = 0; j < sz; j++) {
                     T even = data[i + j];
-                    T odd = barrett.reduce(data[i + j + sz] * w[j]);
+                    T odd = barrett.reduce(static_cast<__uint128_t>(data[i + j + sz]) *
+                                           w[j]);
 
                     data[i + j] =
                         (even + odd >= mod) ? even + odd - mod : even + odd;
@@ -424,7 +263,7 @@ public:
         if (invert) {
             T n_inv = power(n, mod - 2);
             for (size_t i = 0; i < n; i++) {
-                data[i] = barrett.reduce(data[i] * n_inv);
+                data[i] = barrett.reduce(static_cast<__uint128_t>(data[i]) * n_inv);
             }
         }
     }
@@ -449,7 +288,7 @@ public:
         ntt(b);
 
         for (size_t i = 0; i < n; i++) {
-            a[i] = barrett.reduce(a[i] * b[i]);
+            a[i] = barrett.reduce(static_cast<__uint128_t>(a[i]) * b[i]);
         }
 
         ntt(a, true);
@@ -472,7 +311,8 @@ public:
         ntt(ntt_data);
 
         for (size_t i = 0; i < n; i++) {
-            ntt_data[i] = barrett.reduce(ntt_data[i] * ntt_data[i]);
+            ntt_data[i] =
+                barrett.reduce(static_cast<__uint128_t>(ntt_data[i]) * ntt_data[i]);
         }
 
         ntt(ntt_data, true);

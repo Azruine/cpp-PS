@@ -1,3 +1,3 @@
-# [4일차](day04.cpp)
+# [04일차](day04.cpp)
 
 I LOVE BRUTEFORCE.

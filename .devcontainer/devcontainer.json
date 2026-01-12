@@ -23,5 +23,8 @@
 				"llvm-vs-code-extensions.vscode-clangd"
 			]
 		}
+	},
+	"remoteEnv": {
+		"DISPLAY": ""
 	}
 }

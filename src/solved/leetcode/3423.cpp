@@ -17,8 +17,9 @@ public:
     int maxAdjacentDistance(std::vector<int>& nums) {
         nums.push_back(nums.front());
         auto view =
-            nums | std::views::adjacent_transform<2>(
-                       [](auto& a, auto& b) { return std::abs(a - b); });
+            nums | std::views::adjacent_transform<2>([](auto& a, auto& b) {
+            return std::abs(a - b);
+        });
         return std::ranges::max(view);
     }
 };

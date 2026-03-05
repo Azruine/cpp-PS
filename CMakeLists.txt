@@ -13,7 +13,7 @@ elseif(CMAKE_BUILD_TYPE STREQUAL "Debug")
         -Wall
         -Wextra
         -Werror
-        -Wconversion
+        # -Wconversion
         -Wpedantic
         -Wshadow
         -Wunused

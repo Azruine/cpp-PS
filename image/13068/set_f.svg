@@ -1,0 +1,37 @@
+<svg width="100%" viewBox="0 0 680 215" xmlns="http://www.w3.org/2000/svg" role="img">
+<title>F with bad interval s</title>
+<desc>Six intervals of F shown as horizontal bars sorted by left endpoint. The bracket above marks s = [1, 8], a bad interval of F.</desc>
+<g stroke="#D3D1C7" stroke-width="0.3" stroke-dasharray="2 3">
+<line x1="104" y1="30" x2="104" y2="175"/>
+<line x1="158" y1="30" x2="158" y2="175"/>
+<line x1="212" y1="30" x2="212" y2="175"/>
+<line x1="320" y1="30" x2="320" y2="175"/>
+<line x1="428" y1="30" x2="428" y2="175"/>
+<line x1="482" y1="30" x2="482" y2="175"/>
+</g>
+<line x1="104" y1="48" x2="482" y2="48" stroke="#888780" stroke-width="1"/>
+<line x1="104" y1="44" x2="104" y2="52" stroke="#888780" stroke-width="1"/>
+<line x1="482" y1="44" x2="482" y2="52" stroke="#888780" stroke-width="1"/>
+<text x="293" y="40" font-size="11" fill="#5F5E5A" text-anchor="middle" font-family="sans-serif">bad interval s = [1, 8]</text>
+<rect x="104" y="60" width="54" height="14" fill="#9FE1CB" stroke="#0F6E56" stroke-width="1" rx="2"/>
+<text x="131" y="71" font-size="10" fill="#04342C" text-anchor="middle" font-family="sans-serif">[1, 2]</text>
+<rect x="104" y="78" width="108" height="14" fill="#9FE1CB" stroke="#0F6E56" stroke-width="1" rx="2"/>
+<text x="158" y="89" font-size="10" fill="#04342C" text-anchor="middle" font-family="sans-serif">[1, 3]</text>
+<rect x="158" y="96" width="270" height="14" fill="#9FE1CB" stroke="#0F6E56" stroke-width="1" rx="2"/>
+<text x="293" y="107" font-size="10" fill="#04342C" text-anchor="middle" font-family="sans-serif">[2, 7]</text>
+<rect x="212" y="114" width="108" height="14" fill="#9FE1CB" stroke="#0F6E56" stroke-width="1" rx="2"/>
+<text x="266" y="125" font-size="10" fill="#04342C" text-anchor="middle" font-family="sans-serif">[3, 5]</text>
+<rect x="320" y="132" width="162" height="14" fill="#9FE1CB" stroke="#0F6E56" stroke-width="1" rx="2"/>
+<text x="401" y="143" font-size="10" fill="#04342C" text-anchor="middle" font-family="sans-serif">[5, 8]</text>
+<rect x="428" y="150" width="54" height="14" fill="#9FE1CB" stroke="#0F6E56" stroke-width="1" rx="2"/>
+<text x="455" y="161" font-size="10" fill="#04342C" text-anchor="middle" font-family="sans-serif">[7, 8]</text>
+<line x1="50" y1="180" x2="590" y2="180" stroke="#888780" stroke-width="0.5"/>
+<g font-size="10" fill="#5F5E5A" text-anchor="middle" font-family="sans-serif">
+<text x="104" y="195">1</text>
+<text x="158" y="195">2</text>
+<text x="212" y="195">3</text>
+<text x="320" y="195">5</text>
+<text x="428" y="195">7</text>
+<text x="482" y="195">8</text>
+</g>
+</svg>

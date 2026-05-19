@@ -23,8 +23,13 @@ case "$PROBLEM_FOLDER" in
         TARGET_FOLDER="leetcode"
         PROBLEM_NAME=$(printf "%04d" "$PROBLEM_NAME")
         ;;
+    4)
+        echo "Setting target folder to qoj"
+        TARGET_FOLDER="qoj"
+        PROBLEM_NAME=$(printf "%05d" "$PROBLEM_NAME")
+        ;;
     *)
-        echo "Invalid problem_folder value. Use 1 for baekjoon, 2 for programmers, or 3 for leetcode."
+        echo "Invalid problem_folder value. 1: boj, 2: programmers, 3: leetcode, 4: qoj"
         exit 1
         ;;
 esac

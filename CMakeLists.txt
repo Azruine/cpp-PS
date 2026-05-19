@@ -18,6 +18,7 @@ elseif(CMAKE_BUILD_TYPE STREQUAL "Debug")
         -Wshadow
         -Wunused
     )
+    add_compile_definitions(DEBUG)
 endif()
 
 option(C_FLAG_PROFILE "Enable profiling for C" OFF)

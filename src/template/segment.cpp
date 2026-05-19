@@ -6,24 +6,32 @@
 #include <vector>
 
 template <typename T>
+class Operator{
+    static constexpr T identity;
+    
+};
+
+template <typename T>
 struct SumOp {
     static constexpr T identity = 0;
     static T combine(const T& lhs, const T& rhs) { return lhs + rhs; }
-    static void apply(T& node, const T& lazy) { node += lazy; }
+    static void apply(T& node, const T& lazy, size_t k) {
+        node += lazy * static_cast<T>(k);
+    }
 };
 
 template <typename T>
 struct MaxOp {
     static constexpr T identity = std::numeric_limits<T>::min();
     static T combine(const T& lhs, const T& rhs) { return std::max(lhs, rhs); }
-    static void apply(T& node, const T& lazy) { node += lazy; }
+    static void apply(T& node, const T& lazy, size_t /*k*/) { node += lazy; }
 };
 
 template <typename T>
 struct MinOp {
     static constexpr T identity = std::numeric_limits<T>::max();
     static T combine(const T& lhs, const T& rhs) { return std::min(lhs, rhs); }
-    static void apply(T& node, const T& lazy) { node += lazy; }
+    static void apply(T& node, const T& lazy, size_t /*k*/) { node += lazy; }
 };
 
 template <typename T, typename Op>
@@ -35,20 +43,22 @@ private:
     std::vector<T> tree;
     std::vector<T> lazy;
 
-    void apply(size_t pos, T value) {
-        Op::apply(tree[pos], value);
+    void apply(size_t pos, T value, size_t k) {
+        Op::apply(tree[pos], value, k);
         if (pos < size) {
-            Op::apply(lazy[pos], value);
+            lazy[pos] += value;
         }
     }
 
     void build(size_t pos) {
+        size_t k = 2;
         while (pos > 1) {
             pos >>= 1;
             tree[pos] = Op::combine(tree[pos << 1], tree[pos << 1 | 1]);
             if (pos < size) {
-                Op::apply(tree[pos], lazy[pos]);
+                Op::apply(tree[pos], lazy[pos], k);
             }
+            k <<= 1;
         }
     }
 
@@ -56,8 +66,9 @@ private:
         for (size_t sz = height; sz > 0; --sz) {
             size_t i = pos >> sz;
             if (lazy[i] != 0) {
-                apply(i << 1, lazy[i]);
-                apply(i << 1 | 1, lazy[i]);
+                size_t k = static_cast<size_t>(1) << (sz - 1);
+                apply(i << 1, lazy[i], k);
+                apply(i << 1 | 1, lazy[i], k);
                 lazy[i] = 0;
             }
         }
@@ -67,8 +78,8 @@ public:
     void init(size_t n) {
         size = n;
         height =
-            sizeof(int) * height_multiplier -
-            static_cast<size_t>(__builtin_clz(static_cast<uint32_t>(size)));
+            (sizeof(int) * height_multiplier)
+            - static_cast<size_t>(__builtin_clz(static_cast<uint32_t>(size)));
         tree.assign(size << 1, Op::identity);
         lazy.assign(size, 0);
     }
@@ -76,12 +87,6 @@ public:
     void setLeaf(std::vector<T> const& nums) {
         for (size_t i = 0; i < std::min(size, nums.size()); i++) {
             tree[size + i] = nums[i];
-        }
-    }
-
-    void read_leaf() {
-        for (size_t i = 0; i < size; i++) {
-            std::cin >> tree[size + i];
         }
     }
 
@@ -96,13 +101,14 @@ public:
         right += size;
         size_t left0 = left;
         size_t right0 = right;
+        size_t k = 1;
 
-        for (; left < right; left >>= 1, right >>= 1) {
+        for (; left < right; left >>= 1, right >>= 1, k <<= 1) {
             if (left & 1) {
-                apply(left++, value);
+                apply(left++, value, k);
             }
             if (right & 1) {
-                apply(--right, value);
+                apply(--right, value, k);
             }
         }
 

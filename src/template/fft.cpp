@@ -146,226 +146,6 @@ public:
 
 namespace ntt {
 template <typename T>
-class Barrett {
-    T mod;
-    __uint128_t m;
-
-public:
-    explicit Barrett(T mod_)
-        : mod(mod_), m((static_cast<__uint128_t>(1) << 64) / mod) {}
-    T reduce(__uint128_t x) const {
-        T quotient = static_cast<T>((m * x) >> 64);
-        T residue =
-            static_cast<T>(x - (static_cast<__uint128_t>(quotient) * mod));
-        return residue >= mod ? residue - mod : residue;
-    }
-    T reduce(T lhs, T rhs) const {
-        __uint128_t x = static_cast<__uint128_t>(lhs) * rhs;
-        return reduce(x);
-    }
-};
-
-template <typename T>
-class NTT {
-    T mod;
-    size_t cache_size = 0;
-    Barrett<T> barrett;
-    T primitive_root;
-    std::vector<T> roots, inv_roots;
-
-    void fill_roots(size_t n) {
-        if (n <= cache_size) {
-            return;
-        }
-        cache_size = n;
-        roots.resize(n >> 1);
-        inv_roots.resize(n >> 1);
-
-        T w = power(primitive_root, (mod - 1) / n);
-        T w_inv = power(w, mod - 2);
-
-        roots[0] = inv_roots[0] = 1;
-
-        for (size_t i = 1; i < (n >> 1); i++) {
-            roots[i] = barrett.reduce(roots[i - 1], w);
-            inv_roots[i] = barrett.reduce(inv_roots[i - 1], w_inv);
-        }
-    }
-
-    T power(T base, T exp) const {
-        T result = 1;
-        while (exp > 0) {
-            if (exp & 1) {
-                result = barrett.reduce(result, base);
-            }
-            base = barrett.reduce(base, base);
-            exp >>= 1;
-        }
-        return result;
-    }
-
-    T find_primitive_root() const {
-        if (mod == 998244353 || mod == 469762049 || mod == 167772161) {
-            return 3;
-        }
-
-        std::vector<T> factors;
-        T phi = mod - 1;
-        T n = phi;
-        for (T i = 2; i * i <= n; i++) {
-            if (n % i == 0) {
-                factors.push_back(i);
-                while (n % i == 0) {
-                    n /= i;
-                }
-            }
-        }
-        if (n > 1) {
-            factors.push_back(n);
-        }
-
-        for (T i = 2; i < mod; i++) {
-            bool is_primitive = true;
-            for (T factor : factors) {
-                if (power(i, phi / factor) == 1) {
-                    is_primitive = false;
-                    break;
-                }
-            }
-            if (is_primitive) {
-                return i;
-            }
-        }
-        return 2;
-    }
-
-public:
-    explicit NTT(T mod_)
-        : mod(mod_), barrett(mod_), primitive_root(find_primitive_root()) {}
-
-    void ntt(std::vector<T>& data, bool invert = false) {
-        size_t n = data.size();
-        if (n == 1) {
-            return;
-        }
-        fill_roots(n);
-
-        for (size_t i = 1, j = 0; i < n; i++) {
-            size_t bit = n >> 1;
-            for (; j & bit; bit >>= 1) {
-                j ^= bit;
-            }
-            j ^= bit;
-            if (i < j) {
-                std::swap(data[i], data[j]);
-            }
-        }
-
-        auto const& roots_table = invert ? inv_roots : roots;
-
-        for (size_t k = 1; k < n; k <<= 1) {
-            size_t step = cache_size / (k << 1);
-            for (size_t i = 0; i < n; i += (k << 1)) {
-                size_t idx = 0;
-                for (size_t j = 0; j < k; j++) {
-                    T even = data[i + j];
-                    T odd = barrett.reduce(data[i + j + k], roots_table[idx]);
-                    T sum = even + odd;
-                    sum = sum - (sum >= mod ? mod : 0);
-                    T diff = even - odd + (even < odd ? mod : 0);
-                    data[i + j] = sum;
-                    data[i + j + k] = diff;
-                    idx += step;
-                }
-            }
-        }
-
-        if (invert) {
-            T n_inv = power(static_cast<T>(n), mod - 2);
-            for (size_t i = 0; i < n; i++) {
-                data[i] = barrett.reduce(data[i], n_inv);
-            }
-        }
-    }
-
-    std::vector<T> multiply(std::vector<T> const& lhs,
-                            std::vector<T> const& rhs) {
-        if (lhs.size() == 0 || rhs.size() == 0) {
-            return {};
-        }
-        constexpr size_t NAIVE_THRESHOLD = 64;
-        if (lhs.size() * rhs.size() <= NAIVE_THRESHOLD * NAIVE_THRESHOLD) {
-            std::vector<T> ret(lhs.size() + rhs.size() - 1, 0);
-            for (size_t i = 0; i < lhs.size(); i++) {
-                if (lhs[i] == 0) {
-                    continue;
-                }
-                for (size_t j = 0; j < rhs.size(); j++) {
-                    T prod = barrett.reduce(lhs[i], rhs[j]);
-                    T sum = ret[i + j] + prod;
-                    ret[i + j] = sum - ((sum >= mod) ? mod : 0);
-                }
-            }
-            return ret;
-        }
-        size_t result_size = lhs.size() + rhs.size() - 1;
-        size_t n = 2;
-        while (n < result_size) {
-            n <<= 1;
-        }
-
-        std::vector<T> lhs_ntt(n), rhs_ntt(n);
-        for (size_t i = 0; i < lhs.size(); i++) {
-            lhs_ntt[i] = lhs[i] % mod;
-        }
-        for (size_t i = 0; i < rhs.size(); i++) {
-            rhs_ntt[i] = rhs[i] % mod;
-        }
-
-        ntt(lhs_ntt);
-        ntt(rhs_ntt);
-
-        for (size_t i = 0; i < n; i++) {
-            lhs_ntt[i] = barrett.reduce(lhs_ntt[i], rhs_ntt[i]);
-        }
-
-        ntt(lhs_ntt, true);
-
-        lhs_ntt.resize(result_size);
-        return lhs_ntt;
-    }
-
-    std::vector<T> self_multiply(std::vector<T> const& vec) {
-        if (vec.size() == 0) {
-            return {};
-        }
-        size_t result_size = (2 * vec.size()) - 1;
-        size_t n = 2;
-        while (n < result_size) {
-            n <<= 1;
-        }
-
-        std::vector<T> ntt_data(n);
-        for (size_t i = 0; i < vec.size(); i++) {
-            ntt_data[i] = vec[i] % mod;
-        }
-
-        ntt(ntt_data);
-
-        for (size_t i = 0; i < n; i++) {
-            ntt_data[i] = barrett.reduce(ntt_data[i], ntt_data[i]);
-        }
-
-        ntt(ntt_data, true);
-
-        ntt_data.resize(result_size);
-        return ntt_data;
-    }
-};
-};  // namespace ntt
-
-namespace ntt_optimized {
-template <typename T>
 constexpr T as(auto&& x) noexcept {
     return static_cast<T>(decltype(x)(x));
 }
@@ -509,14 +289,14 @@ class NTT {
         uint32_t n = phi;
         for (uint32_t i = 2; i * i <= n; i++) {
             if (n % i == 0) {
-                factors.push_back(i);
+                factors.emplace_back(i);
                 while (n % i == 0) {
                     n /= i;
                 }
             }
         }
         if (n > 1) {
-            factors.push_back(n);
+            factors.emplace_back(n);
         }
 
         for (uint32_t i = 2; i < MOD; i++) {
@@ -706,4 +486,4 @@ public:
         return ntt_data;
     }
 };
-};  // namespace ntt_optimized
+};  // namespace ntt

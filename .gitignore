@@ -2,7 +2,6 @@ build
 **/temp*.*
 **/test*.*
 temp*
-src/solved/baekjoon/not_opened
 src/problem
 .*
 CMakeCache.txt

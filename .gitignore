@@ -2,7 +2,6 @@ build
 **/temp*.*
 **/test*.*
 temp*
-src/problem
 .*
 CMakeCache.txt
 CMakeFiles/

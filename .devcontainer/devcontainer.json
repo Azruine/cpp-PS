@@ -16,9 +16,9 @@
 			},
 			"extensions": [
 				"ms-vscode.cmake-tools",
-				// "ms-vscode.cpptools",
-				// "ms-vscode.cpptools-extension-pack",
-				// "ms-vscode.cpptools-themes",
+				"ms-vscode.cpptools",
+				"ms-vscode.cpptools-extension-pack",
+				"ms-vscode.cpptools-themes",
 				"ms-vscode.makefile-tools",
 				"llvm-vs-code-extensions.vscode-clangd"
 			]

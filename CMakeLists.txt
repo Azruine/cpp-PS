@@ -47,10 +47,7 @@ endif()
 if(CXX_SOURCES)
     add_executable(temp src/temp.cpp)
     add_executable(testcasegen src/testcasegen.cpp)
-
-    if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/src/temp_leetcode.cpp")
-        add_executable(temp_leetcode src/temp_leetcode.cpp)
-    endif()
+    add_executable(temp_leetcode src/temp_leetcode.cpp)
 endif()
 
 set(CPACK_PROJECT_NAME ${PROJECT_NAME})

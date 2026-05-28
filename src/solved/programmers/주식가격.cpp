@@ -1,41 +1,33 @@
-#include <string>
-#include <vector>
 #include <algorithm>
 #include <climits>
+#include <string>
+#include <vector>
 
 using namespace std;
 
-class Seg
-{
+class Seg {
 private:
     std::vector<int> data;
     int size;
 
 public:
-    Seg(){}
-    Seg(int n)
-    {
+    Seg() {}
+    Seg(int n) {
         size = n;
         data.assign(size << 1, INT_MAX);
     }
-    void init(std::vector<int> v)
-    {
+    void init(std::vector<int> v) {
         std::copy(v.begin(), v.end(), data.begin() + size);
     }
-    void build()
-    {
+    void build() {
         for (int i = size - 1; i > 0; i--)
             data[i] = std::min(data[i << 1], data[i << 1 | 1]);
     }
-    int query(int l, int r)
-    {
+    int query(int l, int r) {
         int res = INT_MAX;
-        for (l += size, r += size; l < r; l >>= 1, r >>= 1)
-        {
-            if (l & 1)
-                res = std::min(res, data[l++]);
-            if (r & 1)
-                res = std::min(res, data[--r]);
+        for (l += size, r += size; l < r; l >>= 1, r >>= 1) {
+            if (l & 1) res = std::min(res, data[l++]);
+            if (r & 1) res = std::min(res, data[--r]);
         }
         return res;
     }
@@ -47,11 +39,9 @@ vector<int> solution(vector<int> prices) {
     Seg seg = Seg(n);
     seg.init(prices);
     seg.build();
-    for (int i = 0; i < n; i++)
-    {
+    for (int i = 0; i < n; i++) {
         int l = i + 1, r = n;
-        while (l < r)
-        {
+        while (l < r) {
             int mid = (l + r) >> 1;
             int midQuery = seg.query(i + 1, mid + 1);
             if (midQuery < prices[i])

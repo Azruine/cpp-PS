@@ -1,21 +1,21 @@
 FROM debian:trixie-slim
 
-# Install base packages + clangd 22.1.0 from GitHub release
+# Install base packages + LLVM 23 tools from apt.llvm.org.
 RUN apt-get update \
     && apt-get install -y --no-install-recommends \
        gcc gdb g++ cmake git \
        libc++-dev libc++abi-dev \
        cppcheck cpplint \
-       wget ca-certificates unzip \
+       wget ca-certificates \
        ninja-build \
-    && wget -qO /tmp/clangd.zip \
-       https://github.com/clangd/clangd/releases/download/22.1.0/clangd-linux-22.1.0.zip \
-    && unzip -q /tmp/clangd.zip -d /tmp/clangd \
-    && mv /tmp/clangd/clangd_22.1.0/bin/clangd /usr/local/bin/ \
-    && mv /tmp/clangd/clangd_22.1.0/lib/clang /usr/local/lib/ \
-    && ln -s /usr/local/bin/clangd /usr/bin/clangd \
-    && rm -rf /tmp/clangd /tmp/clangd.zip \
-    && apt-get purge -y unzip \
+    && wget -qO /etc/apt/trusted.gpg.d/apt.llvm.org.asc \
+       https://apt.llvm.org/llvm-snapshot.gpg.key \
+    && echo "deb http://apt.llvm.org/trixie/ llvm-toolchain-trixie main" \
+       > /etc/apt/sources.list.d/llvm-23.list \
+    && apt-get update \
+    && apt-get install -y --no-install-recommends clangd-23 clang-format-23 \
+    && ln -sf /usr/bin/clangd-23 /usr/bin/clangd \
+    && ln -sf /usr/bin/clang-format-23 /usr/bin/clang-format \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 

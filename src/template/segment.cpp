@@ -6,9 +6,8 @@
 #include <vector>
 
 template <typename T>
-class Operator{
+class Operator {
     static constexpr T identity;
-    
 };
 
 template <typename T>

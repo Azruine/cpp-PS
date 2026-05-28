@@ -27,5 +27,5 @@
 	"remoteEnv": {
 		"DISPLAY": ""
 	},
-	"postCreateCommand": "mkdir -p ~/.config/clangd && cp /workspaces/cpp/.clangd_global ~/.config/clangd/config.yaml"
+	"postCreateCommand": "mkdir -p ~/.config/clangd && ln -sf /workspaces/cpp/.clangd_global ~/.config/clangd/config.yaml"
 }

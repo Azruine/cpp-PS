@@ -6,6 +6,7 @@ RUN apt-get update \
        gcc gdb g++ cmake git \
        libc++-dev libc++abi-dev \
        cppcheck cpplint \
+       time \
        wget ca-certificates \
        ninja-build \
     && wget -qO /etc/apt/trusted.gpg.d/apt.llvm.org.asc \

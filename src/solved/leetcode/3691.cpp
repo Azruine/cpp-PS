@@ -30,49 +30,47 @@ constexpr Range _iota{};
 }  // namespace
 
 #include <algorithm>
+#include <bit>
 #include <cstdint>
 #include <vector>
 
 class SparseTable {
     size_t n = 0;
-    std::vector<int32_t> logs;
-    std::vector<int32_t> min_table;
-    std::vector<int32_t> max_table;
+    struct MinMax {
+        int32_t min = 0, max = 0;
+    };
+    std::vector<MinMax> table;
 
 public:
     explicit SparseTable(std::vector<int32_t> const& data) : n(data.size()) {
-        logs.resize(n + 1, 0);
-        for (auto i : _iota(2U, n + 1)) {
-            logs[i] = logs[i / 2] + 1;
-        }
-        size_t max_level = logs[n] + 1;
-        min_table.resize(n * max_level, 0);
-        max_table.resize(n * max_level, 0);
+        size_t max_level = std::bit_width(n);
+        table.resize(n * max_level);
 
         for (auto i : _iota(n)) {
-            min_table[i] = max_table[i] = data[i];
+            table[i].min = table[i].max = data[i];
         }
         for (size_t level = 1; level < max_level; level++) {
             size_t len = 1UL << level;
             size_t half = len >> 1;
+            size_t base = (level * n);
+            size_t prev = ((level - 1) * n);
             for (size_t i = 0; i < n - len + 1; i++) {
-                size_t base = (level * n) + i;
-                size_t prev = ((level - 1) * n) + i;
-                min_table[base] =
-                    std::min(min_table[prev], min_table[prev + half]);
-                max_table[base] =
-                    std::max(max_table[prev], max_table[prev + half]);
+                auto const& a = table[prev + i];
+                auto const& b = table[prev + i + half];
+                table[base + i] = {
+                    .min = std::min(a.min, b.min),
+                    .max = std::max(a.max, b.max),
+                };
             }
         }
     }
     int32_t query(size_t left, size_t right) const {
         size_t len = right - left + 1;
-        size_t level = logs[len];
+        size_t level = std::bit_width(len) - 1;
         size_t width = 1UL << level;
-        return std::max(max_table[(level * n) + right + 1 - width],
-                        max_table[(level * n) + left])
-               - std::min(min_table[(level * n) + right + 1 - width],
-                          min_table[(level * n) + left]);
+        auto const& a = table[(level * n) + left];
+        auto const& b = table[(level * n) + right + 1 - width];
+        return std::max(a.max, b.max) - std::min(a.min, b.min);
     }
 };
 
@@ -82,33 +80,27 @@ public:
         int64_t ret = 0;
         size_t n = nums.size();
 
-        auto [min_it, max_it] = std::minmax_element(nums.begin(), nums.end());
-        int32_t global_min = *min_it;
-        int32_t global_max = *max_it;
-        int64_t global_diff = global_max - global_min;
-
-        if (global_diff == 0) {
+        auto [min, max] = std::ranges::minmax_element(nums);
+        int64_t diff = *max - *min;
+        if (diff == 0) {
             return 0;
         }
 
-        int64_t count = 0;
+        int32_t count = 0;
         int32_t min_pos = -1;
         int32_t max_pos = -1;
 
         for (auto i : _iota(0U, n)) {
-            if (nums[i] == global_min) {
+            if (nums[i] == *min) {
                 min_pos = i;
             }
-            if (nums[i] == global_max) {
+            if (nums[i] == *max) {
                 max_pos = i;
             }
-            if (min_pos != -1 && max_pos != -1) {
-                count += std::min(min_pos, max_pos) + 1;
+            count += std::min(min_pos, max_pos) + 1;
+            if (count >= k) {
+                return diff * k;
             }
-        }
-
-        if (count >= k) {
-            return global_diff * k;
         }
 
         SparseTable table(nums);
@@ -124,18 +116,17 @@ public:
         for (auto left : _iota(0U, n)) {
             heap.emplace_back(left, n - 1, table.query(left, n - 1));
         }
-        std::make_heap(heap.begin(), heap.end(), cmp);
+        std::ranges::make_heap(heap, cmp);
         while (k--) {
-            std::pop_heap(heap.begin(), heap.end(), cmp);
-            auto cur = heap.back();
-            heap.pop_back();
+            std::ranges::pop_heap(heap, cmp);
+            Rng& cur = heap.back();
             ret += cur.value;
-
             if (cur.right > cur.left) {
-                size_t next_right = cur.right - 1;
-                heap.emplace_back(cur.left, next_right,
-                                  table.query(cur.left, next_right));
-                std::push_heap(heap.begin(), heap.end(), cmp);
+                cur.right -= 1;
+                cur.value = table.query(cur.left, cur.right);
+                std::ranges::push_heap(heap, cmp);
+            } else {
+                heap.pop_back();
             }
         }
         return ret;

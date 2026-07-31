@@ -3,6 +3,9 @@
 #include <cstdint>
 #include <vector>
 class UnionFind {
+    std::vector<size_t> data;
+    std::vector<uint8_t> rank;
+
 public:
     void init(size_t n) {
         data.resize(n);
@@ -23,9 +26,7 @@ public:
         }
         return root;
     }
-    auto find (auto x) {
-        return x != data[x] ? find(data[x]) : x;
-    }
+    auto find(auto x) { return x != data[x] ? find(data[x]) : x; }
     void merge(size_t x, size_t y) {
         x = find(x), y = find(y);
         if (x == y) {
@@ -40,8 +41,4 @@ public:
             rank[x]++;
         }
     }
-
-private:
-    std::vector<size_t> data;
-    std::vector<uint8_t> rank;
 };

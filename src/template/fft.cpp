@@ -73,7 +73,7 @@ class FFT {
 public:
     std::vector<T> multiply(std::vector<T> const& lhs,
                             std::vector<T> const& rhs) {
-        if (lhs.size() == 0 || rhs.size() == 0) {
+        if (lhs.empty() || rhs.empty()) {
             return {};
         }
         constexpr size_t NAIVE_THRESHOLD = 64;
@@ -118,7 +118,7 @@ public:
         return ret;
     }
     std::vector<T> self_multiply(std::vector<T> const& vec) {
-        if (vec.size() == 0) {
+        if (vec.empty()) {
             return {};
         }
         size_t result_size = (2 * vec.size()) - 1;
@@ -162,9 +162,9 @@ class Montgomery {
     static constexpr uint32_t calc_mod_inv(uint32_t m) {
         uint32_t inv = 1;
         for (int i = 0; i < 5; i++) {
-            inv *= 2u - m * inv;
+            inv *= 2U - (m * inv);
         }
-        return 0u - inv;
+        return 0U - inv;
     }
     static constexpr uint32_t calc_r2(uint32_t m) {
         return static_cast<uint32_t>((static_cast<__uint128_t>(1) << 64) % m);
@@ -175,7 +175,7 @@ public:
         requires(!DYNAMIC)
     = default;
     explicit Montgomery(uint32_t m)
-        requires(DYNAMIC)
+        requires DYNAMIC
         : mod_dyn(m), mod_inv_dyn(calc_mod_inv(m)), r2_dyn(calc_r2(m)) {}
 
     constexpr uint32_t mod() const {
@@ -201,8 +201,8 @@ public:
     }
 
     uint32_t reduce(uint64_t x) const {
-        auto t = (uint32_t)x * mod_inv();
-        auto r = (uint32_t)((x + (uint64_t)t * mod()) >> 32);
+        auto t = as<uint32_t>(x) * mod_inv();
+        auto r = as<uint32_t>((x + as<uint64_t>(t) * mod()) >> 32);
         return r - (r >= mod() ? mod() : 0);
     }
 
@@ -389,7 +389,7 @@ public:
         }
     }
     explicit NTT(uint32_t m)
-        requires(DYNAMIC)
+        requires DYNAMIC
         : mod_dyn(m), mont(m), primitive_root(find_primitive_root()) {
         if (m >= (1U << 30) || (m & 1) == 0) {
             throw std::invalid_argument("NTT: invalid mod");
@@ -407,7 +407,7 @@ public:
 
     std::vector<uint32_t> multiply(std::vector<uint32_t> const& lhs,
                                    std::vector<uint32_t> const& rhs) {
-        if (lhs.size() == 0 || rhs.size() == 0) {
+        if (lhs.empty() || rhs.empty()) {
             return {};
         }
         constexpr size_t NAIVE_THRESHOLD = 64;
@@ -457,7 +457,7 @@ public:
     }
 
     std::vector<uint32_t> self_multiply(std::vector<uint32_t> const& vec) {
-        if (vec.size() == 0) {
+        if (vec.empty()) {
             return {};
         }
         size_t result_size = (2 * vec.size()) - 1;

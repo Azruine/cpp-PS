@@ -1,139 +1,235 @@
 /*==== Copyright 2025 Azruine ====*/
+#pragma once
 
 #include <algorithm>
-#include <cstdint>
+#include <concepts>
+#include <cstddef>
 #include <limits>
+#include <utility>
 #include <vector>
 
-template <typename T>
-class Operator {
-    static constexpr T identity;
+// Op may provide static functions or const member functions.
+template <typename Op, typename T>
+concept SegmentOp = requires(Op const& op, T const& lhs, T const& rhs) {
+    { op.identity } -> std::convertible_to<T>;
+    { op.combine(lhs, rhs) } -> std::same_as<T>;
 };
 
-template <typename T>
-struct SumOp {
-    static constexpr T identity = 0;
-    static T combine(const T& lhs, const T& rhs) { return lhs + rhs; }
-    static void apply(T& node, const T& lazy, size_t k) {
-        node += lazy * static_cast<T>(k);
-    }
+template <typename Op, typename T>
+concept LazySegmentOp =
+    SegmentOp<Op, T>
+    && requires(Op const& op, T& node, typename Op::lazy_type const& old_tag,
+                Op::lazy_type const& new_tag, std::size_t len) {
+           { op.lazy_identity } -> std::convertible_to<typename Op::lazy_type>;
+           { old_tag == new_tag } -> std::convertible_to<bool>;
+           { op.apply(node, new_tag, len) } -> std::same_as<void>;
+           {
+               op.compose(old_tag, new_tag)
+           } -> std::same_as<typename Op::lazy_type>;
+       };
+
+namespace seg_detail {
+template <typename Op, typename T, bool = LazySegmentOp<Op, T>>
+struct LazyStorage {
+    // Placeholder for signatures; range updates are constrained away.
+    struct tag_type {};
 };
 
-template <typename T>
-struct MaxOp {
-    static constexpr T identity = std::numeric_limits<T>::min();
-    static T combine(const T& lhs, const T& rhs) { return std::max(lhs, rhs); }
-    static void apply(T& node, const T& lazy, size_t /*k*/) { node += lazy; }
+template <typename Op, typename T>
+struct LazyStorage<Op, T, true> {
+    using tag_type = Op::lazy_type;
+    std::vector<tag_type> tags;
 };
+}  // namespace seg_detail
 
-template <typename T>
-struct MinOp {
-    static constexpr T identity = std::numeric_limits<T>::max();
-    static T combine(const T& lhs, const T& rhs) { return std::min(lhs, rhs); }
-    static void apply(T& node, const T& lazy, size_t /*k*/) { node += lazy; }
-};
+// combine must be associative, with identity as a two-sided identity.
+// compose(old_tag, new_tag) applies old_tag first, then new_tag.
+// apply must respect combine, segment lengths, and tag composition.
+// Public positions/ranges must lie in [0, length]; ranges are half-open.
+// Arithmetic must remain representable in the operation's numeric types.
+template <typename T, SegmentOp<T> Op>
+class SegTree {
+    static constexpr bool has_lazy = LazySegmentOp<Op, T>;
+    using Storage = seg_detail::LazyStorage<Op, T>;
+    using Tag = Storage::tag_type;
 
-template <typename T, typename Op>
-class LazySegTree {
-private:
-    static constexpr size_t height_multiplier = 8;
-    size_t height;
-    size_t size;
+    [[no_unique_address]] Op op{};
+    [[no_unique_address]] Storage lazy{};
+    std::size_t length = 0;
+    std::size_t size = 1;
+    std::size_t height = 0;
     std::vector<T> tree;
-    std::vector<T> lazy;
 
-    void apply(size_t pos, T value, size_t k) {
-        Op::apply(tree[pos], value, k);
+    void apply(std::size_t pos, Tag const& value, std::size_t len)
+        requires has_lazy
+    {
+        op.apply(tree[pos], value, len);
         if (pos < size) {
-            lazy[pos] += value;
+            lazy.tags[pos] = op.compose(lazy.tags[pos], value);
         }
     }
 
-    void build(size_t pos) {
-        size_t k = 2;
+    void build(std::size_t pos) {
+        std::size_t len = 2;
         while (pos > 1) {
             pos >>= 1;
-            tree[pos] = Op::combine(tree[pos << 1], tree[pos << 1 | 1]);
-            if (pos < size) {
-                Op::apply(tree[pos], lazy[pos], k);
+            tree[pos] = op.combine(tree[pos << 1], tree[pos << 1 | 1]);
+            if constexpr (has_lazy) {
+                if (!(lazy.tags[pos] == op.lazy_identity)) {
+                    op.apply(tree[pos], lazy.tags[pos], len);
+                }
             }
-            k <<= 1;
+            len <<= 1;
         }
     }
 
-    void push(size_t pos) {
-        for (size_t sz = height; sz > 0; --sz) {
-            size_t i = pos >> sz;
-            if (lazy[i] != 0) {
-                size_t k = static_cast<size_t>(1) << (sz - 1);
-                apply(i << 1, lazy[i], k);
-                apply(i << 1 | 1, lazy[i], k);
-                lazy[i] = 0;
+    void push(std::size_t pos) {
+        if constexpr (has_lazy) {
+            for (std::size_t level = height; level > 0; --level) {
+                std::size_t parent = pos >> level;
+                if (lazy.tags[parent] == op.lazy_identity) {
+                    continue;
+                }
+                std::size_t child_len = std::size_t{1} << (level - 1);
+                apply(parent << 1, lazy.tags[parent], child_len);
+                apply(parent << 1 | 1, lazy.tags[parent], child_len);
+                lazy.tags[parent] = op.lazy_identity;
             }
         }
     }
 
 public:
-    void init(size_t n) {
-        size = n;
-        height =
-            (sizeof(int) * height_multiplier)
-            - static_cast<size_t>(__builtin_clz(static_cast<uint32_t>(size)));
-        tree.assign(size << 1, Op::identity);
-        lazy.assign(size, 0);
+    void init(std::size_t n, Op operation = {}) {
+        op = std::move(operation);
+        length = n;
+        size = 1;
+        height = 0;
+        while (size < length) {
+            size <<= 1;
+            ++height;
+        }
+        tree.assign(size << 1, op.identity);
+        if constexpr (has_lazy) {
+            lazy.tags.assign(size, op.lazy_identity);
+        }
     }
 
-    void setLeaf(std::vector<T> const& nums) {
-        for (size_t i = 0; i < std::min(size, nums.size()); i++) {
+    // Initialization only: call after init(), before updates.
+    void set_leaf(std::vector<T> const& nums) {
+        for (std::size_t i = 0; i < std::min(length, nums.size()); ++i) {
             tree[size + i] = nums[i];
         }
     }
 
+    // Initialization only: call after set_leaf().
     void build_all() {
-        for (size_t i = size - 1; i > 0; --i) {
-            tree[i] = Op::combine(tree[i << 1], tree[i << 1 | 1]);
+        for (std::size_t i = size - 1; i > 0; --i) {
+            tree[i] = op.combine(tree[i << 1], tree[i << 1 | 1]);
         }
     }
 
-    void increase(size_t left, size_t right, T value) {
+    // Kept under the original name; value is an Op-defined update tag.
+    void increase(std::size_t left, std::size_t right, Tag const& value)
+        requires has_lazy
+    {
+        if (left >= right) {
+            return;
+        }
         left += size;
         right += size;
-        size_t left0 = left;
-        size_t right0 = right;
-        size_t k = 1;
-
-        for (; left < right; left >>= 1, right >>= 1, k <<= 1) {
+        std::size_t left0 = left;
+        std::size_t right0 = right;
+        push(left0);
+        push(right0 - 1);
+        std::size_t len = 1;
+        for (; left < right; left >>= 1, right >>= 1, len <<= 1) {
             if (left & 1) {
-                apply(left++, value, k);
+                apply(left++, value, len);
             }
             if (right & 1) {
-                apply(--right, value, k);
+                apply(--right, value, len);
             }
         }
-
         build(left0);
         build(right0 - 1);
     }
 
-    T query(size_t left, size_t right) {
+    void set(std::size_t pos, T const& value) {
+        pos += size;
+        push(pos);
+        tree[pos] = value;
+        build(pos);
+    }
+
+    T query(std::size_t left, std::size_t right) {
+        if (left >= right) {
+            return op.identity;
+        }
         left += size;
         right += size;
         push(left);
         push(right - 1);
-
-        T res = Op::identity;
+        T lhs = op.identity;
+        T rhs = op.identity;
         for (; left < right; left >>= 1, right >>= 1) {
             if (left & 1) {
-                res = Op::combine(res, tree[left++]);
+                lhs = op.combine(lhs, tree[left++]);
             }
             if (right & 1) {
-                res = Op::combine(res, tree[--right]);
+                rhs = op.combine(tree[--right], rhs);
             }
         }
-        return res;
+        return op.combine(lhs, rhs);
     }
 };
 
-using SegTreeSum = LazySegTree<int, SumOp<int>>;
-using SegTreeMax = LazySegTree<int, MaxOp<int>>;
-using SegTreeMin = LazySegTree<int, MinOp<int>>;
+// Non-lazy operations.
+template <typename T>
+struct SumOp {
+    static constexpr T identity = T{};
+    static T combine(T const& lhs, T const& rhs) { return lhs + rhs; }
+};
+
+template <typename T>
+struct MaxOp {
+    static constexpr T identity = std::numeric_limits<T>::lowest();
+    static T combine(T const& lhs, T const& rhs) { return std::max(lhs, rhs); }
+};
+
+template <typename T>
+struct MinOp {
+    static constexpr T identity = std::numeric_limits<T>::max();
+    static T combine(T const& lhs, T const& rhs) { return std::min(lhs, rhs); }
+};
+
+// Common tag type/composition for range addition.
+template <typename T>
+struct AddTag {
+    using lazy_type = T;
+    static constexpr T lazy_identity = T{};
+    static T compose(T const& old_tag, T const& new_tag) {
+        return old_tag + new_tag;
+    }
+};
+
+// Lazy operations reuse the corresponding non-lazy combine/identity.
+template <typename T>
+struct LazySumOp : SumOp<T>, AddTag<T> {
+    static void apply(T& node, T const& tag, std::size_t len) {
+        node += tag * static_cast<T>(len);
+    }
+};
+
+template <typename T>
+struct LazyMaxOp : MaxOp<T>, AddTag<T> {
+    static void apply(T& node, T const& tag, std::size_t /*len*/) {
+        node += tag;
+    }
+};
+
+template <typename T>
+struct LazyMinOp : MinOp<T>, AddTag<T> {
+    static void apply(T& node, T const& tag, std::size_t /*len*/) {
+        node += tag;
+    }
+};

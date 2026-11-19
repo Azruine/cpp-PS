@@ -2,7 +2,21 @@ cmake_minimum_required(VERSION 3.16.3)
 project(mixed_project VERSION 0.1.0 LANGUAGES C CXX)
 
 set(CMAKE_C_STANDARD 11)
-set(CMAKE_CXX_STANDARD 23)
+set(CMAKE_CXX_STANDARD 26)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
+option(ENABLE_CXX_REFLECTION "Enable experimental C++26 reflection" ON)
+
+if(ENABLE_CXX_REFLECTION)
+    if(NOT CMAKE_CXX_COMPILER_ID STREQUAL "GNU"
+       OR CMAKE_CXX_COMPILER_VERSION VERSION_LESS 16)
+        message(FATAL_ERROR "C++ reflection requires GCC 16 or newer")
+    endif()
+
+    add_compile_options(
+        $<$<COMPILE_LANGUAGE:CXX>:-freflection>
+    )
+endif()
 
 if(CMAKE_BUILD_TYPE STREQUAL "Release")
     message(STATUS "Applying release build options")
@@ -13,7 +27,7 @@ elseif(CMAKE_BUILD_TYPE STREQUAL "Debug")
         -Wall
         -Wextra
         -Werror
-        # -Wconversion
+        -Wconversion
         -Wpedantic
         -Wshadow
         -Wunused
@@ -47,6 +61,10 @@ endif()
 if(CXX_SOURCES)
     add_executable(temp src/temp.cpp)
     add_executable(testcasegen src/testcasegen.cpp)
+    # Keep third-party warnings separate from the project's strict diagnostics.
+    target_include_directories(testcasegen SYSTEM PRIVATE
+        "${CMAKE_CURRENT_SOURCE_DIR}/third_party/testlib"
+    )
     add_executable(temp_leetcode src/temp_leetcode.cpp)
 endif()
 

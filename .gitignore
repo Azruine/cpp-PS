@@ -9,6 +9,7 @@ CMakeFiles/
 
 !template
 !.gitignore
+!.devcontainer
 !.vscode
 
 .vscode/settings.json

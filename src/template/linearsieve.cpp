@@ -9,12 +9,12 @@ class LinearSieve {
 public:
     explicit LinearSieve(T n) : is_prime(n + 1, true), min_factor(n + 1, 0) {
         is_prime[0] = is_prime[1] = false;
-        for (T i = 2; i <= n; ++i) {
+        for (T i = 2; i <= n; i++) {
             if (is_prime[i]) {
                 primes.push_back(i);
                 min_factor[i] = i;
             }
-            for (const T& prime : primes) {
+            for (T const& prime : primes) {
                 if (prime * i > n || prime > min_factor[i]) {
                     break;
                 }
